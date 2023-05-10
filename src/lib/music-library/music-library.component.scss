@@ -1,0 +1,240 @@
+:host {
+    height: 100%;
+}
+
+.contents {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .container {
+        height: 100%;
+        overflow: hidden;
+    }
+}
+
+img {
+    position: relative;
+
+    &:before,
+    &:after {
+        content: ' ';
+        display: block;
+        position: absolute;
+
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+
+        background: var(--panel-background-color);
+    }
+    &:after {
+        z-index: 1;
+        opacity: .5;
+        background-image: url(../../../assets/icons/mimetypes/media-optical-symbolic.svg);
+    }
+}
+
+.group-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+
+    .photo {
+        margin-right: 8px;
+        padding: 4px;
+        img {
+            max-width: 48px;
+            max-height: 48px;
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            object-position: center;
+        }
+    }
+
+    .text {
+        .name {
+            font-weight: bolder;
+        }
+        .subtext {
+            font-size: 12px;
+            font-weight: lighter;
+        }
+    }
+}
+
+
+.controls {
+    height: 48px;
+    width: 100%;
+
+    .overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 48px;
+        display: flex;
+        background-color: var(--background-color);
+    }
+
+    .seeker {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .top {
+            position: relative;
+            display: flex;
+            font-size: 14px;
+            top: 10px;
+        }
+
+        .title {
+            position: absolute;
+            font-weight: bolder;
+            color: var(--text-bright-color);
+        }
+
+        .duration {
+            position: absolute;
+            right: 12px;
+        }
+
+        .slider {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+
+            mat-slider {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 10px;
+                z-index: 5;
+                margin-left: 0;
+            }
+
+            app-waveform {
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                z-index: 2;
+            }
+        }
+    }
+
+    .volume {
+        display: flex;
+        align-items: center;
+    }
+}
+
+:host ::ng-deep {
+
+    .mat-mdc-slider .mdc-slider__track {
+        --mdc-slider-inactive-track-height: 3px;
+        --mdc-slider-active-track-height: 3px;
+        --mdc-slider-inactive-track-color: #dfdfdf;
+    }
+
+    .mat-mdc-slider .mdc-slider__thumb-knob {
+        width: 16px;
+        height: 16px;
+        --mdc-slider-handle-width: 4px;
+        --mdc-slider-handle-height: 4px;
+    }
+
+    .mat-mdc-tab.mdc-tab {
+        height: 28px;
+    }
+}
+
+
+.queue {
+    font-size: 14px;
+
+    .img {
+        max-width: 48px;
+        max-height: 48px;
+        object-fit: contain;
+        object-position: center;
+    }
+    .title {
+        display: inline-block;
+        -webkit-line-clamp: 1;
+        text-overflow: ellipsis;
+        width: 100%;
+        overflow: hidden;
+
+        mat-icon {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+            position: relative;
+            bottom: -6px;
+        }
+    }
+    .duration {
+        text-align: center;
+        vertical-align: top;
+    }
+
+    .close {
+        width: 32px;
+        height: 32px;
+        padding: 1px;
+
+        mat-icon {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+            position: relative;
+            opacity: 0;
+            transition: opacity 250ms ease;
+        }
+    }
+
+    tr {
+        position: relative;
+        transform: translateX(0);
+        transition: transform 250ms ease, opacity 250ms ease;
+
+        &:after {
+            content: "";
+            position: absolute;
+            background-color: #0000002b;
+            left: 0;
+            width: 0;
+            height: 2px;
+            bottom: 5px;
+            transition: position 250ms ease, width 250ms ease, background-color 250ms ease;
+        }
+        &:hover {
+            background-color: var(--dialog-background-color);
+        }
+        &.active{
+            background: var(--panel-background-color);
+
+            &::after {
+                left: 0;
+                width: 100%;
+            }
+        }
+        &.removing {
+            transform: translateX(300px);
+            opacity: 0;
+        }
+    }
+    tr:hover .close mat-icon {
+        opacity: .7;
+    }
+}
+
+.track,
+.group-item {
+    text-align: left;
+}
