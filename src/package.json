@@ -1,0 +1,33 @@
+{
+  "name": "@dotglitch/ngx-component-library",
+  "version": "0.0.18",
+  "repository": {
+    "url": "https://github.com/knackstedt/ngx-component-library"
+  },
+  "author": {
+    "email": "andrewk@vivaldi.net",
+    "name": "Andrew G. Knackstedt"
+  },
+  "description": "A hackable lazy loader for Angular components",
+  "keywords": [
+    "angular",
+    "ngx",
+    "typescript",
+    "lazy-loading",
+    "ivy",
+    "ng2",
+    "ng",
+    "angular-service"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^15.1.0",
+    "@angular/core": "^15.1.0",
+    "@angular/cdk": "^15.1.0",
+    "@angular/material": "^15.1.0",
+    "@dotglitch/ngx-ctx-menu": "^0.0.10"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
