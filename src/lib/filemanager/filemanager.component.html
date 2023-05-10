@@ -1,0 +1,54 @@
+<app-window-template [window]="windowRef">
+    <ng-template #toolbar>
+        <app-toolbar
+            [currentTab]="currentTab"
+            [(showHiddenFiles)]="showHiddenFiles"
+            [(showSidebar)]="showSidebar"
+            [(sortOrder)]="sortOrder"
+            (onBreadcrumbClick)="onBreadcrumbClick($event)"
+        />
+    </ng-template>
+    <ng-template #content>
+        <as-split direction="horizontal" [gutterSize]="1">
+            <as-split-area [size]="20" style="background-color: #2c2c2c;">
+                <div class="sidebar" *ngIf="showSidebar" (click)="currentTab.selection = []">
+                    <ul>
+                        <li *ngFor="let link of config.filemanager.defaultLocations" (click)="onBreadcrumbClick({ id: link.path })">
+                            <mat-icon [fontIcon]="link.icon"></mat-icon>{{link.label}}
+                        </li>
+                    </ul>
+                </div>
+            </as-split-area>
+            <as-split-area [size]="80" style="background-color: #272727;">
+                <div class="content"
+                    [class.active]="windowRef._isActive"
+                    [style.--tab-height]="tabs.length > 1 ? '36px' : '0'"
+                >
+                    <mat-tab-group #tabGroup (selectedTabChange)="currentTab = tabs[$event.index]" [(selectedIndex)]="tabIndex">
+                        <mat-tab *ngFor="let tab of tabs">
+                            <ng-template mat-tab-label>
+                                {{tab.label}}
+                                <mat-icon
+                                    class="close"
+                                    (click)="closeTab(tab)">
+                                    close
+                                </mat-icon>
+                            </ng-template>
+
+                            <ng-template matTabContent>
+                                <app-file-grid
+                                    [window]="windowRef"
+                                    [(path)]="tab.path"
+                                    (pathChange)="tabPathChange(tab)"
+                                    [(selection)]="tab.selection"
+                                    (fileOpen)="onFileOpen($event)"
+                                    [viewMode]="tab.viewMode"
+                                />
+                            </ng-template>
+                        </mat-tab>
+                    </mat-tab-group>
+                </div>
+            </as-split-area>
+        </as-split>
+    </ng-template>
+</app-window-template>
