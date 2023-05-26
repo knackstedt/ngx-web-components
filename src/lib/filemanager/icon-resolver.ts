@@ -1,23 +1,46 @@
-import { fileIcons } from "material-icon-theme/src/icons/fileIcons";
-import { folderIcons } from "material-icon-theme/src/icons/folderIcons";
 import { FSDescriptor } from './filemanager.component';
-import textExtensions from 'textextensions';
-import { getMimeType } from 'client/app/apps/filemanager/mimetype';
-
+import textExtensions from './textextensions';
+import { getMimeType } from './mimetype';
+import * as MIT from 'material-icon-theme/dist/material-icons.json';
+Object.keys(MIT).forEach(k => {
+    console.log(k, MIT[k])
+})
+const folderNames = MIT['default'].folderNames;
+const fileNames = MIT['default'].fileNames;
+const fileExtensions = MIT['default'].fileExtensions;
+// const { folderNames, fileExtensions, fileNames } = MIT;
 /**
  * TODO: support `VirtualBox VMs` `Videos` `Templates` `Public` `Music` `Downloads` `Documents` `Desktop` `Applications`
  */
 
+let folderIconNameList = [];
+let fileIconNameList = [];
+let fileIconExtensionList = [];
+
+Object.entries(fileNames).forEach(([name, icon]) => {
+    fileIconNameList.push({
+        val: name,
+        iconName: icon
+    });
+})
+Object.entries(fileExtensions).forEach(([name, icon]) => {
+    fileIconExtensionList.push({
+        val: name,
+        iconName: icon
+    });
+})
+
+Object.entries(folderNames).forEach(([name, icon]) => {
+    folderIconNameList.push({
+        val: name,
+        iconName: icon,
+    });
+})
+
 
 function isText(path: string) {
     const ext = path.split('.').pop();
-
-    // let isBinary = [
-    //     "so",
-    //     "pak"
-    // ].includes(ext);
-
-    return textExtensions.includes(ext)
+    return textExtensions.includes(ext);
 }
 
 function getFallbackIcon(path: string) {
@@ -28,7 +51,7 @@ function getFallbackIcon(path: string) {
         so: "/assets/file-icons/exts/exe.svg",
         pak: "/assets/file-icons/compressed.svg",
         dat: {
-            path: "/lib/mit/hex.svg",
+            path: "/assets/lib/icons/hex.svg",
             needsBackdrop: true
         }
     }[ext];
@@ -41,41 +64,6 @@ function getFallbackIcon(path: string) {
             needsBackdrop: false
         } : v;
 }
-
-// Build maps of extension/filename => icon id.
-const fileIconExtensionList = [];
-const fileIconNameList: {
-    val: string,
-    iconName: string,
-    light: boolean // is there a _light variant?
-}[] = [];
-
-const folderIconNameList = [];
-fileIcons.icons.forEach(i => {
-    i.fileNames?.forEach(name => {
-        fileIconNameList.push({
-            val: name,
-            iconName: i.name,
-            light: i.light
-        });
-    })
-    i.fileExtensions?.forEach(ext => {
-        fileIconExtensionList.push({
-            val: ext,
-            iconName: i.name,
-            light: i.light
-        });
-    })
-});
-folderIcons.find(f => f.name == "specific").icons.forEach(dir => {
-    dir.folderNames.forEach(fn => {
-        folderIconNameList.push({
-            val: fn,
-            iconName: dir.name,
-            light: dir.light
-        });
-    })
-});
 
 const builtinIcons = [
     "7z",
@@ -112,24 +100,24 @@ const builtinIcons = [
     "xar",
     "xz",
     "zip"
-]
+];
 
-const getBestMatch = (data: {val: string, iconName: string}[], filename) => {
+const getBestMatch = (data: { val: string, iconName: string; }[], filename) => {
     return data
         .filter(d => filename.endsWith(d.val)) // filter to all match results
         .sort((a, b) => b.val.length - a.val.length) // sort longest string first
-        [0]?.iconName; // Return the first result.
-}
+    [0]?.iconName; // Return the first result.
+};
 
 // TODO: resolve dynamic thumbnails for media documents
-export const resolveIcon = (file: FSDescriptor): {path: string, needsBackdrop: boolean} => {
+export const resolveIcon = (file: FSDescriptor): { path: string, needsBackdrop: boolean; } => {
 
     if (file.kind == "directory") {
         return resolveDirIcon(file);
     }
 
     return resolveFileIcon(file);
-}
+};
 
 const resolveDirIcon = (file: FSDescriptor) => {
     const dirnameMatch = getBestMatch(folderIconNameList, file.name);
@@ -137,15 +125,13 @@ const resolveDirIcon = (file: FSDescriptor) => {
 
     // TODO: default to a clear icon that doesn't have decoration
     return {
-        path: dirnameMatch ? `lib/mit/${dirnameMatch}.svg` : "assets/icons/folder.svg",
+        path: dirnameMatch ? `assets/lib/icons/${dirnameMatch}.svg` : "assets/lib/icons/folder.svg",
         needsBackdrop: false
     };
-}
+};
 
 const resolveFileIcon = (file: FSDescriptor) => {
     // Folders always use the material-icon-theme
-
-    const ext = file.name.split('.').pop();
 
     const baseExt = builtinIcons.find(ext => file.name.endsWith('.' + ext));
     if (baseExt) {
@@ -170,11 +156,11 @@ const resolveFileIcon = (file: FSDescriptor) => {
     const filename = fileIconNameList
         .filter(d => file.name.toLowerCase() == d.val.toLowerCase())
         .sort((a, b) => b.val.length - a.val.length)
-    [0]?.iconName;
+        [0]?.iconName;
 
     if (filename) {
         return {
-            path: `lib/mit/${filename}.svg`,
+            path: `assets/lib/icons/${filename}.svg`,
             needsBackdrop: true
         };
     }
@@ -182,7 +168,7 @@ const resolveFileIcon = (file: FSDescriptor) => {
     // foo.log.1 foo.log.123 should be treated clearly as log files.
     if (/\.log\.\d+$/.test(filename)) {
         return {
-            path: `lib/mit/log.svg`,
+            path: `assets/lib/icons/log.svg`,
             needsBackdrop: true
         };
     }
@@ -194,7 +180,7 @@ const resolveFileIcon = (file: FSDescriptor) => {
         [0]?.iconName;
 
     if (fileext) return {
-        path: `lib/mit/${fileext}.svg`,
+        path: `assets/lib/icons/${fileext}.svg`,
         needsBackdrop: true
     };
 
@@ -211,4 +197,4 @@ const resolveFileIcon = (file: FSDescriptor) => {
         path: isFileBinary ? 'assets/file-icons/text.svg' : 'assets/file-icons/binary.svg',
         needsBackdrop: false
     };
-}
+};

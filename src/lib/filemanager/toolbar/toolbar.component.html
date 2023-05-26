@@ -2,12 +2,12 @@
     <gtk-icon-button
         fontIcon="arrow_back_ios_new"
         (click)="historyBack(currentTab)"
-        [disabled]="currentTab.history.length <= 1"
+        [disabled]="currentTab.history?.length <= 1"
     />
     <gtk-icon-button
         fontIcon="arrow_forward_ios"
         (click)="historyForward(currentTab)"
-        [disabled]="currentTab.historyIndex >= (currentTab.history.length-1)"
+        [disabled]="currentTab.historyIndex >= (currentTab.history?.length-1)"
     />
 </div>
 
@@ -45,89 +45,4 @@
     [ngx-app-menu-config]="{position: 'bottom'}"
 />
 
-<div style="width: 8px"></div>
-
-<gtk-icon-button
-    fontIcon="menu"
-    [ngx-app-menu]="sortOptions"
-    [ngx-app-menu-config]="{position: 'bottom'}"
-/>
-
-<!-- <span></span>
-<div class="buttongroup">
-
-    <gtk-icon-button img="assets/icons/actions/pan-down-symbolic.svg">
-        <ng-template #dialogTemplate>
-            <div class="buttongroup">
-                <button>
-                    <img src="assets/icons/actions/zoom-out-symbolic.svg" />
-                </button>
-                <label>67%</label>
-                <button>
-                    <img src="assets/icons/actions/zoom-in-symbolic.svg" />
-                </button>
-            </div>
-
-            <span class="separator">Sort</span>
-
-            <li (click)="sortOrder = 'a-z'" [class.selected]="sortOrder == 'a-z'">A-Z <input type="radio" /></li>
-            <li (click)="sortOrder = 'z-a'" [class.selected]="sortOrder == 'z-a'">Z-A <input type="radio" /></li>
-            <li (click)="sortOrder = 'lastmod'" [class.selected]="sortOrder == 'lastmod'">Last Modified <input
-                    type="radio" /></li>
-            <li (click)="sortOrder = 'firstmod'" [class.selected]="sortOrder == 'firstmod'">First Modified <input
-                    type="radio" />
-            </li>
-            <li (click)="sortOrder = 'size'" [class.selected]="sortOrder == 'size'">Size <input type="radio" /></li>
-            <li (click)="sortOrder = 'type'" [class.selected]="sortOrder == 'type'">Type <input type="radio" /></li>
-
-            <hr />
-
-            <div (click)="1">reload</div>
-        </ng-template>
-    </gtk-icon-button>
-    <gtk-icon-button img="assets/icons/actions/open-menu-symbolic.svg">
-        <ng-template #dialogTemplate>
-            <div class="buttongroup border">
-                <button>
-                    <img src="assets/icons/actions/appointment-new-symbolic.svg" />
-                </button>
-                <button>
-                    <img src="assets/icons/actions/tab-new-symbolic.svg" />
-                </button>
-                <button>
-                    <img src="assets/icons/actions/folder-new-symbolic.svg" />
-                </button>
-            </div>
-            <li>Undo Create Folder</li>
-            <li>Redo</li>
-            <hr />
-            <li>
-                <label>
-                    Show hidden files
-                </label>
-                <input
-                    #input
-                    type="checkbox"
-                    [value]="showHiddenFiles"
-                    (change)="showHiddenFilesChange.next(showHiddenFiles = input.checked)"
-                >
-            </li>
-            <li>
-                <label>
-                    Show sidebar
-                </label>
-                <input
-                    #input
-                    type="checkbox"
-                    [value]="showSidebar"
-                    (change)="showSidebarChange.next(showSidebar = input.checked)"
-                >
-            </li>
-            <hr />
-            <li>Perferences</li>
-            <li>Keyboard Shortcuts</li>
-            <li>Help</li>
-            <li>About Files</li>
-        </ng-template>
-    </gtk-icon-button>
-</div> -->
+<div style="width: 32px"></div>

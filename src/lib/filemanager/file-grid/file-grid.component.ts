@@ -2,14 +2,13 @@ import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef }
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { KeyboardService } from 'client/app/services/keyboard.service';
-import { ManagedWindow, WindowManagerService } from 'client/app/services/window-manager.service';
-import { Fetch } from 'client/app/services/fetch.service';
-import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor } from 'client/app/apps/filemanager/filemanager.component';
-import { resolveIcon } from 'client/app/apps/filemanager/icon-resolver';
-import { DialogService } from 'client/app/services/dialog.service';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ContextMenuItem, NgxContextMenuDirective } from '@dotglitch/ngx-ctx-menu';
+import { Fetch } from '../../services/fetch.service';
+import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
+import { resolveIcon } from '../icon-resolver';
+import { DialogService } from '../../services/dialog.service';
+import { KeyboardService } from '../../services/keyboard.service';
 
 const itemWidth = (80 + 20);
 const margin = 10;
@@ -36,8 +35,6 @@ const isArchive = (file: string | FSDescriptor) => {
 export class FileGridComponent implements OnInit {
     @ViewChild("fileViewport") filesRef: ElementRef;
 
-    @Input("window") windowRef: ManagedWindow;
-
     private _path: string;
     @Input() set path(value: string) {
         if (!value) return;
@@ -48,11 +45,14 @@ export class FileGridComponent implements OnInit {
 
         if (prev != value) {
             this.pathChange.next(this.path);
-            this.loadFolder()
+            if (this.config.apiSettings)
+                this.loadFolder()
         }
     }
     get path() {return this._path}
     @Output() pathChange = new EventEmitter<string>();
+
+    @Input() config: NgxFileManagerConfiguration = {};
 
     @Input() showHiddenFiles = false;
 
@@ -61,6 +61,7 @@ export class FileGridComponent implements OnInit {
     @Output() fileSelect = new EventEmitter<FSDescriptor[]>();
     @Output() fileOpen = new EventEmitter<FSDescriptor[]>();
     @Output() newTab = new EventEmitter<{ path: string; }>();
+    @Output() loadFiles = new EventEmitter<FSDescriptor[]>();
 
     directoryContents: FSDescriptor[] = [];
     @Input("selection") selectedItems: FSDescriptor[] = [];
@@ -119,14 +120,14 @@ export class FileGridComponent implements OnInit {
                 console.log(data);
             }
         },
-        {
-            label: "Add to _B_ookmarks",
-            shortcutLabel: "Ctrl+D",
-            icon: "bookmark",
-            action: (evt) => {
+        // {
+        //     label: "Add to _B_ookmarks",
+        //     shortcutLabel: "Ctrl+D",
+        //     icon: "bookmark",
+        //     action: (evt) => {
 
-            }
-        },
+        //     }
+        // },
         "separator",
         {
             isDisabled: (data) => true,
@@ -140,21 +141,9 @@ export class FileGridComponent implements OnInit {
             shortcutLabel: "Ctrl+A",
             icon: "select_all",
             action: (evt) => {
-
-            }
-        },
-        "separator",
-        {
-            label: "Open in _T_erminal",
-            icon: "terminal",
-            action: (evt) => {
-                this.windowManager.openWindow({ appId: "terminal", data: { cwd: this.path }})
-            }
-        },
-        {
-            label: "Open VS Code here",
-            action: (evt) => {
-
+                this.selectedItems = this._sortFilter();
+                this.selectionText = this.getSelectionText();
+                this.selectedItemsChange.next(this.selectedItems);
             }
         },
         "separator",
@@ -183,15 +172,15 @@ export class FileGridComponent implements OnInit {
                 link.remove();
             }
         },
-        {
-            label: "Open",
-            icon: "open_in_new",
-            shortcutLabel: "Shift+Ctrl+N",
-            action: (data) => {
-                console.log("New folder goodness");
-                console.log(data);
-            }
-        },
+        // {
+        //     label: "Open",
+        //     icon: "open_in_new",
+        //     shortcutLabel: "Shift+Ctrl+N",
+        //     action: (data) => {
+        //         console.log("New folder goodness");
+        //         console.log(data);
+        //     }
+        // },
         {
             label: "Open in new Tab",
             icon: "open_in_new",
@@ -200,47 +189,47 @@ export class FileGridComponent implements OnInit {
                 this.fileManager.initTab(data.path + data.name);
             }
         },
-        {
-            label: "Open with Application...",
-            isVisible: (data) => data.kind == "file",
-            shortcutLabel: "Ctrl+D",
-            action: (evt) => {
+        // {
+        //     label: "Open with Application...",
+        //     isVisible: (data) => data.kind == "file",
+        //     shortcutLabel: "Ctrl+D",
+        //     action: (evt) => {
 
-            },
-        },
+        //     },
+        // },
         "separator",
-        {
-            label: "Cut",
-            icon: "content_cut",
-            isDisabled: data => true,
-            action: (evt) => {
-            },
-        },
-        {
-            label: "Copy",
-            icon: "file_copy",
-            isDisabled: data => true,
-            action: (evt) => {
-            },
-        },
-        {
-            label: "Move To...",
-            icon: "drive_file_move",
-            shortcutLabel: "Ctrl+A",
-            action: (evt) => {
+        // {
+        //     label: "Cut",
+        //     icon: "content_cut",
+        //     isDisabled: data => true,
+        //     action: (evt) => {
+        //     },
+        // },
+        // {
+        //     label: "Copy",
+        //     icon: "file_copy",
+        //     isDisabled: data => true,
+        //     action: (evt) => {
+        //     },
+        // },
+        // {
+        //     label: "Move To...",
+        //     icon: "drive_file_move",
+        //     shortcutLabel: "Ctrl+A",
+        //     action: (evt) => {
 
-            },
-        },
-        {
-            label: "Copy To...",
-            icon: "folder_copy",
-            shortcutLabel: "Ctrl+A",
-            action: (evt) => {
+        //     },
+        // },
+        // {
+        //     label: "Copy To...",
+        //     icon: "folder_copy",
+        //     shortcutLabel: "Ctrl+A",
+        //     action: (evt) => {
 
-            },
-        },
+        //     },
+        // },
         {
-            label: "Move to Trash",
+            label: "Delete",
             icon: "delete",
             shortcutLabel: "Ctrl+A",
             isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
@@ -249,15 +238,15 @@ export class FileGridComponent implements OnInit {
                     .then(() => this.loadFolder())
             },
         },
-        {
-            label: "Shred file",
-            icon: "delete_forever",
-            isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
-            action: (evt) => {
-                this.fetch.post(`/api/filesystem/delete?wipe=true`, { files: [evt.path + evt.name]})
-                    .then(() => this.loadFolder())
-            },
-        },
+        // {
+        //     label: "Shred file",
+        //     icon: "delete_forever",
+        //     isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
+        //     action: (evt) => {
+        //         this.fetch.post(`/api/filesystem/delete?wipe=true`, { files: [evt.path + evt.name]})
+        //             .then(() => this.loadFolder())
+        //     },
+        // },
         {
             label: "Rename",
             icon: "drive_file_rename_outline",
@@ -274,7 +263,7 @@ export class FileGridComponent implements OnInit {
             label: "Extract Here",
             icon: "folder_zip",
             shortcutLabel: "Ctrl+A",
-            isDisabled: (data) => data.kind == "file" && data.ext != ".zip" && isArchive(data),
+            isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
             action: (evt) => {
                 // TODO
             },
@@ -283,7 +272,7 @@ export class FileGridComponent implements OnInit {
             label: "Extract to...",
             icon: "folder_zip",
             shortcutLabel: "Ctrl+A",
-            isDisabled: (data) => data.kind == "file" && data.ext != ".zip" && isArchive(data),
+            isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
             action: (evt) => {
                 // TODO
             },
@@ -300,7 +289,7 @@ export class FileGridComponent implements OnInit {
         {
             label: "Checksum",
             icon: "manage_search",
-            isDisabled: (data) => data.kind == "file",
+            isDisabled: (data) => data.kind != "file",
             children: [
                 {
                     label: "MD5",
@@ -323,14 +312,14 @@ export class FileGridComponent implements OnInit {
                 return !this.isArchive || data.kind == "file";
             },
         },
-        {
-            label: "Star",
-            icon: "star",
-            shortcutLabel: "Ctrl+A",
-            action: (evt) => {
+        // {
+        //     label: "Star",
+        //     icon: "star",
+        //     shortcutLabel: "Ctrl+A",
+        //     action: (evt) => {
 
-            },
-        },
+        //     },
+        // },
         "separator",
         {
             label: "P_r_operties",
@@ -342,18 +331,17 @@ export class FileGridComponent implements OnInit {
     ];
 
     performChecksum(path, digest) {
-        this.windowManager.openWindow({
-            appId: "checksum",
-            data: { digest, path },
-            workspace: this.windowRef.workspace,
-            width: 600,
-            height: 250
-        });
+        // this.windowManager.openWindow({
+        //     appId: "checksum",
+        //     data: { digest, path },
+        //     workspace: this.windowRef.workspace,
+        //     width: 600,
+        //     height: 250
+        // });
     }
 
     constructor(
         private fetch: Fetch,
-        private windowManager: WindowManagerService,
         private keyboard: KeyboardService,
         private dialog: DialogService,
         private fileManager: FilemanagerComponent
@@ -362,7 +350,6 @@ export class FileGridComponent implements OnInit {
         keyboard.onKeyCommand({
             key: "a",
             ctrl: true,
-            window: this.windowRef
         }).subscribe(evt => {
             this.selectedItems = this._sortFilter();
             this.selectionText = this.getSelectionText();
@@ -373,7 +360,6 @@ export class FileGridComponent implements OnInit {
         keyboard.onKeyCommand({
             key: "c",
             ctrl: true,
-            window: this.windowRef
         }).subscribe(evt => {
 
         });
@@ -382,7 +368,6 @@ export class FileGridComponent implements OnInit {
         keyboard.onKeyCommand({
             key: "h",
             ctrl: true,
-            window: this.windowRef,
             interrupt: true
         }).subscribe(evt => {
             this.showHiddenFiles = !this.showHiddenFiles;
@@ -391,7 +376,6 @@ export class FileGridComponent implements OnInit {
         // F2 => Rename selected files
         keyboard.onKeyCommand({
             key: "f2",
-            window: this.windowRef
         }).subscribe(evt => {
             // Rename selected file(s)
         });
@@ -399,7 +383,6 @@ export class FileGridComponent implements OnInit {
         // Enter => Open selected files
         keyboard.onKeyCommand({
             key: "Enter",
-            window: this.windowRef
         }).subscribe(evt => {
             const files = this.directoryContents.filter(dc => this.selectedItems.find(i => i.name == dc.name));
             // this.windowManager.openFiles(files as any);
@@ -408,28 +391,35 @@ export class FileGridComponent implements OnInit {
         // Delete => delete selected files
         keyboard.onKeyCommand({
             key: "delete",
-            window: this.windowRef
         }).subscribe(evt => {
             const files = this.directoryContents.filter(dc => this.selectedItems.find(i => i.name == dc.name));
         });
     }
 
     async ngOnInit() {
+        this.loadFolder();
     }
 
     loadFolder() {
-        this.fetch.post(`/api/filesystem/`, { path: this.path, showHidden: this.showHiddenFiles })
+        this.fetch.post(this.config.apiSettings.listEntriesUrl, { path: this.path, showHidden: this.showHiddenFiles })
             .then((data: any) => {
                 const files: FileDescriptor[] = data.files || [];
                 const dirs: DirectoryDescriptor[] = data.dirs;
-
                 const descriptors = files.concat(dirs as any) as FSDescriptor[];
 
-                descriptors.forEach(fsd => fsd['_icon'] = resolveIcon(fsd));
+                descriptors.forEach(f => {
+                    f['_icon'] = resolveIcon(f);
+                    if (f.kind == "file") {
+                        f['_ctime'] = new Date(f.stats.ctimeMs);
+                        f['_mtime'] = new Date(f.stats.mtimeMs);
+                    }
+                });
 
+                console.log(descriptors)
                 this.directoryContents = descriptors;
 
                 this.resize();
+                this.loadFiles.next(descriptors);
             })
     }
 
@@ -521,7 +511,7 @@ export class FileGridComponent implements OnInit {
         return `${dirCount} folder${dirCount == 1 ? "" : "s"} selected, ${fileCount} other item${fileCount == 1 ? "" : "s"} selected (${this.bytesToString(totalSize)})`;
     }
 
-    private bytesToString(bytes: number, decimals = 2) {
+    bytesToString(bytes: number, decimals = 2) {
         if (!+bytes) return '0 Bytes';
 
         const k = 1024;

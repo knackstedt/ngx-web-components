@@ -4,6 +4,7 @@
 
 <!-- Grid mode -->
 <ng-scrollbar
+    class="grid"
     *ngIf="viewMode == 'grid'"
     style="height: 100%; width: 100%"
     track="vertical"
@@ -37,37 +38,53 @@
 </ng-scrollbar>
 
 <!-- List mode -->
-<ng-scrollbar
-    *ngIf="viewMode == 'list'"
-    style="height: 100%; width: 100%"
-    track="vertical"
-    pointerEventsMethod="scrollbar"
-    [ngx-ctx-menu]="folderContextMenu"
->
-    <div class="resize-observer" #fileViewport></div>
-    <cdk-virtual-scroll-viewport
-        itemSize="134"
-        scrollViewport
-        (click)="selectedItems = []; selectionText = ''"
+<ng-container>
+    <div style="display: flex; height: 32px; align-items: center">
+        <div style="flex: 1; padding-left: 8px">Name</div>
+        <div style="width: 100px">Size</div>
+        <div style="width: 120px">Created</div>
+        <div style="width: 120px">Modified</div>
+    </div>
+    <ng-scrollbar
+        class="list"
+        *ngIf="viewMode == 'list'"
+        style="height: calc(100% - 32px); width: 100%"
+        track="vertical"
+        pointerEventsMethod="scrollbar"
+        [ngx-ctx-menu]="folderContextMenu"
     >
-        <div
-            *cdkVirtualFor="let item of directoryContents"
-            class="row"
-            [class.selected]="selectedItems.includes(item)"
-            [ngx-ctx-menu]="fileContextMenu"
-            [ngx-ctx-menu-context]="item"
-
-            (click)="onSelect(item, $event)"
-            (dblclick)="onItemClick(item)"
-            (dragstart)="onDragStart($event, item)"
+        <div class="resize-observer" #fileViewport></div>
+        <cdk-virtual-scroll-viewport
+            itemSize="42"
+            scrollViewport
+            (click)="selectedItems = []; selectionText = ''"
         >
-            <img [src]="item['_icon'].path"/>
-            <p>{{item.name}}</p>
+            <div
+                *cdkVirtualFor="let item of directoryContents; let i = index"
+                class="row"
+                [class.odd]="i%2==1"
+                [class.selected]="selectedItems.includes(item)"
+                [ngx-ctx-menu]="fileContextMenu"
+                [ngx-ctx-menu-context]="item"
 
-            <!-- optional columns... -->
-        </div>
-    </cdk-virtual-scroll-viewport>
-</ng-scrollbar>
+                (click)="onSelect(item, $event)"
+                (dblclick)="onItemClick(item)"
+                (dragstart)="onDragStart($event, item)"
+            >
+                <div style="flex: 1; display: flex">
+                    <img style="height: 24px; margin-right: 6px" [src]="item['_icon'].path"/>
+                    <p>{{item.name}}</p>
+                </div>
+
+                <div style="width: 100px">{{item.stats?.size ? bytesToString(item.stats.size) : ''}}</div>
+
+                <div style="width: 120px">{{item._ctime | date}}</div>
+                <div style="width: 120px">{{item._mtime | date}}</div>
+            </div>
+        </cdk-virtual-scroll-viewport>
+    </ng-scrollbar>
+</ng-container>
+
 
 
 <div class="select-hint" *ngIf="selectionText">

@@ -1,22 +1,14 @@
-import { ChangeDetectorRef, Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
-import { ManagedWindow, WindowManagerService } from '../../services/window-manager.service';
-import { Fetch } from '../../services/fetch.service';
-import { resolveIcon } from './icon-resolver';
-import { KeyboardService } from '../../services/keyboard.service';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonPopoutComponent } from 'client/app/components/button-popout/button-popout.component';
-import { WindowToolbarComponent } from 'client/app/components/window-template/window-toolbar/window-toolbar.component';
-import { WindowTemplateComponent } from 'client/app/components/window-template/window-template.component';
-import { AngularSplitModule } from 'angular-split';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
+import { AngularSplitModule } from 'angular-split';
+import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
+
 import { FileGridComponent } from './file-grid/file-grid.component';
-import { getMimeType } from 'client/app/apps/filemanager/mimetype';
-import { GtkBreadcrumbComponent } from 'client/app/apps/gtk-factory/@components/breadcrumb/breadcrumb.component';
-import { ConfigurationService } from '../../services/configuration.service';
-import { GtkIconButtonComponent } from 'client/app/apps/gtk-factory/@components/icon-button/icon-button.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { resolveIcon } from './icon-resolver';
+import { Fetch } from '../util';
 
 // TODO:
 /**
@@ -56,9 +48,6 @@ export type FileDescriptor = {
 
 export type FSDescriptor = DirectoryDescriptor | FileDescriptor;
 
-// TODO: enable virtual scrolling
-
-
 export type FileViewTab = {
     id: string,
     label: string,
@@ -70,8 +59,29 @@ export type FileViewTab = {
     selection: FSDescriptor[],
     viewMode: "grid" | "list",
     historyIndex: number,
-    history: string[]
+    history: string[],
+    sidebarItems: FSDescriptor[]
 }
+
+export type NgxFileManagerConfiguration = Partial<{
+    /**
+     * Initial path
+     */
+    path: string,
+    /**
+     * Maximum number of items to be stored in history.
+     */
+    maxHistoryLength: number,
+
+    apiSettings: {
+        listEntriesUrl: string,
+        downloadEntryUrl: string,
+        uploadEntryUrl: string
+    },
+
+    mitPath: string,
+    sidebarLocationStrategy: "known" | "currentDirectory"
+}>
 
 @Component({
     selector: 'app-filemanager',
@@ -79,16 +89,14 @@ export type FileViewTab = {
     styleUrls: ['./filemanager.component.scss'],
     imports: [
         CommonModule,
-        ButtonPopoutComponent,
-        WindowToolbarComponent,
-        WindowTemplateComponent,
         AngularSplitModule,
         FileGridComponent,
         MatTabsModule,
         MatIconModule,
-        GtkBreadcrumbComponent,
-        GtkIconButtonComponent,
         ToolbarComponent
+    ],
+    providers: [
+        NgxLazyLoaderService
     ],
     standalone: true
 })
@@ -98,8 +106,13 @@ export class FilemanagerComponent implements OnInit {
 
     resolveIcon = resolveIcon;
 
-    @Input("window") windowRef: ManagedWindow;
-    @Input() path: string = this.config.homedir;
+    @Input() config: NgxFileManagerConfiguration = {
+        apiSettings: {
+            listEntriesUrl: `/api/filesystem/`,
+            uploadEntryUrl: ``,
+            downloadEntryUrl: ``
+        }
+    };
 
     showHiddenFiles = false;
     showSidebar = true;
@@ -119,27 +132,11 @@ export class FilemanagerComponent implements OnInit {
     tabs: FileViewTab[] = [];
 
     constructor(
-        private fetch: Fetch,
-        private windowManager: WindowManagerService,
-        private keyboard: KeyboardService,
-        private dialog: MatDialog,
-        public config: ConfigurationService
-        ) {
-        keyboard.onKeyCommand({
-            ctrl: true,
-            key: "t",
-            window: this.windowRef,
-            interrupt: true
-        }).subscribe(() => {
-            this.tabs.push({
-                ...this.currentTab
-            });
-            this.currentTab = this.tabs[this.tabs.length-1];
-        })
+    ) {
     }
 
     ngOnInit(): void {
-        this.initTab(this.path);
+        this.initTab(this.config.path);
         this.currentTab = this.tabs[0];
     }
 
@@ -152,7 +149,8 @@ export class FilemanagerComponent implements OnInit {
             selection: [],
             viewMode: "grid",
             historyIndex: 0,
-            history: []
+            history: [],
+            sidebarItems: []
         });
         this.tabIndex = this.tabs.length;
     }
@@ -162,12 +160,14 @@ export class FilemanagerComponent implements OnInit {
     }
 
     calcBreadcrumb(path: string) {
+        if (!path) return null;
+
         const parts = path.replace("#/", '/').split('/');
         return parts.map((p, i) => {
             const path = parts.slice(0, i + 1).join('/');
 
             return {
-                id: path,
+                id: path || '/',
                 label: p || ""
             };
         });
@@ -180,91 +180,25 @@ export class FilemanagerComponent implements OnInit {
         }
     }
 
-    tabPathChange(tab: FileViewTab) {
+    onTabPathChange(tab: FileViewTab) {
         tab.label = this.getTabLabel(tab.path);
         tab.breadcrumb = this.calcBreadcrumb(tab.path);
 
         tab.historyIndex++;
         tab.history.push(tab.path);
-        tab.history.splice(this.config.filemanager.maxHistoryLength);
+        tab.history.splice(typeof this.config.maxHistoryLength == 'number' ? this.config.maxHistoryLength : 50);
+    }
+
+    onTabLoadFiles(tab: FileViewTab, files: FSDescriptor[]) {
+        tab.sidebarItems = files.filter(f => f.kind == "directory")
     }
 
     getTabLabel(path: string) {
-        return path.split('/').filter(p => p).pop();
+        return path?.split('/').filter(p => p).pop();
     }
 
     async onFileOpen(files: FSDescriptor[]) {
 
-        let mimetype = files
-            .filter(f => f.kind == "file")
-            .map(f => getMimeType(f.name))
-            .reduce((a, b) => {
-                if (a != b)
-                    return "mixed";
-                return a;
-            }, getMimeType(files[0].name));
-
-        // TODO: handle only mass file operations
-        // mixed content can't be handled generically
-        if (mimetype == "mixed") {
-            return;
-        }
-
-        switch(mimetype) {
-
-            case "compressed": {
-
-                break;
-            }
-            case "presentation": {
-                break;
-            }
-            case "richtext": {
-                break;
-            }
-            case "spreadsheet": {
-                break;
-            }
-            case "3d-model": {
-                break;
-            }
-            case "music": {
-                // this.openWindow();
-                break;
-            }
-            case "video": {
-                console.log("open window")
-                this.openWindow("media-player", { files })
-                break;
-            }
-            default: {
-                switch (files[0]['ext']) {
-                    case "log": {
-                        this.openWindow("log-viewer", { files });
-                        break;
-                    }
-                    default: {
-                        const payload = {
-                            files: files.map(f => f.path + f.name)
-                        };
-                        let stats: any[] = await this.fetch.post(`/api/filesystem/file?only=stat`, payload);
-
-                        const textFiles = stats.filter(r => r.type == "text").map(r => r.name);
-
-                        this.openWindow("text-editor", {
-                            files: files.filter(f => textFiles.includes(f.path + f.name))
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    private openWindow(id, args) {
-        this.windowManager.openWindow({
-            appId: id,
-            data: args
-        })
     }
 
     async onResize() {

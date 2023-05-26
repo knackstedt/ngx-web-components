@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '
 import { CommonModule } from '@angular/common';
 import { NgxAppMenuDirective, NgxContextMenuDirective, ContextMenuItem } from '@dotglitch/ngx-ctx-menu';
 
-import { GtkIconButtonComponent } from '../../gtk-factory/@components/icon-button/icon-button.component';
-import { GtkBreadcrumbComponent } from '../../gtk-factory/@components/breadcrumb/breadcrumb.component';
-import { FileViewTab, FSDescriptor } from 'client/app/apps/filemanager/filemanager.component';
+import { GtkIconButtonComponent } from './icon-button/icon-button.component';
+import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { FileViewTab, FSDescriptor } from '../filemanager.component';
 
 @Component({
     selector: 'app-toolbar',
@@ -29,7 +29,7 @@ export class ToolbarComponent {
 
     @Output() onBreadcrumbClick = new EventEmitter();
 
-    @Input() currentTab: FileViewTab;
+    @Input() currentTab: FileViewTab = {} as any;
 
     @Input() showHiddenFiles: boolean;
     @Output() showHiddenFilesChange = new EventEmitter<boolean>();
@@ -58,19 +58,6 @@ export class ToolbarComponent {
         },
         {
             label: "Select All",
-            action: (folder) => {
-                //
-            }
-        },
-        "separator",
-        {
-            label: "Open Terminal here",
-            action: (folder) => {
-                //
-            }
-        },
-        {
-            label: "Open VS Code here",
             action: (folder) => {
                 //
             }
