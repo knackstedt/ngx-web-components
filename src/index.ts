@@ -1,5 +1,5 @@
 /*
- * Public API Surface of ngx-component-library
+ * Public API Surface of ngx-web-components
  */
 
 export * from './lib/filemanager/filemanager.component';

@@ -1,5 +1,5 @@
 {
-  "name": "@dotglitch/ngx-component-library",
+  "name": "@dotglitch/ngx-web-components",
   "version": "0.0.2",
   "scripts": {
     "ng": "ng",
@@ -9,7 +9,7 @@
     "postinstall": "bash postinstall.sh"
   },
   "files": [
-    "dist/ngx-component-library"
+    "dist/ngx-web-components"
   ],
   "private": true,
   "dependencies": {

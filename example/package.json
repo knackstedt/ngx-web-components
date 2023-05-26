@@ -1,5 +1,5 @@
 {
-    "name": "@dotglitch/ngx-component-library-example",
+    "name": "@dotglitch/ngx-web-components-example",
     "version": "0.0.0",
     "scripts": {
         "dev": "nodemon main.ts"
