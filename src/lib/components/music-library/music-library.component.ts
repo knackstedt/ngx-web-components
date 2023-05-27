@@ -13,8 +13,8 @@ import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotg
 import { CellComponent, EmptyCallback } from 'tabulator-tables';
 import { TabulatorComponent } from '../tabulator/tabulator.component';
 import { VisualizerComponent } from './visualizer/visualizer.component';
-import { Fetch } from '../services/fetch.service';
-import { UrlSanitizer } from '../services/urlsanitizer.pipe';
+import { Fetch } from '../../services/fetch.service';
+import { UrlSanitizer } from '../../services/urlsanitizer.pipe';
 
 type AudioFile = {
     name: string,

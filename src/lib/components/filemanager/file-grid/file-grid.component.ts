@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ContextMenuItem, NgxContextMenuDirective } from '@dotglitch/ngx-ctx-menu';
-import { Fetch } from '../../services/fetch.service';
 import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
+import { Fetch } from '../../../services/fetch.service';
 import { resolveIcon } from '../icon-resolver';
-import { DialogService } from '../../services/dialog.service';
-import { KeyboardService } from '../../services/keyboard.service';
+import { DialogService } from '../../../services/dialog.service';
+import { KeyboardService } from '../../../services/keyboard.service';
 
 const itemWidth = (80 + 20);
 const margin = 10;

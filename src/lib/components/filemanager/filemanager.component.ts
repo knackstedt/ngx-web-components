@@ -8,7 +8,7 @@ import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { resolveIcon } from './icon-resolver';
-import { Fetch } from '../util';
+import { Fetch } from '../../util';
 
 // TODO:
 /**
