@@ -358,7 +358,7 @@ export class MusicLibraryComponent implements OnInit {
     }).bind(this)
 
     ngOnInit() {
-        this.ngxShowDistractor$.next(true)
+        this.ngxShowDistractor$.next(false);
     }
 
     getUrl(path: string) {

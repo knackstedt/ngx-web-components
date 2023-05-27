@@ -76,30 +76,33 @@
                     [ngx-ctx-menu]="queueCtxItems">
                     <div class="resize-observer" #fileViewport></div>
                     <cdk-virtual-scroll-viewport itemSize="54" scrollViewport>
-                        <table class="queue">
-                            <tr
-                                #row
-                                *cdkVirtualFor="let item of queue; let i = index"
-                                (dblClick)="skipQueue(i)"
-                                [class.active]="i == queueIndex"
-                            >
-                                <td>
-                                    <img class="img" [src]="getTrackPicture(item) | urlSanitizer" />
-                                </td>
-                                <td class="title">
+                        <div
+                            #row
+                            *cdkVirtualFor="let item of queue; let i = index"
+                            class="queue-row"
+                            (dblClick)="skipQueue(i)"
+                            [class.active]="i == queueIndex"
+                        >
+                            <div style="width: 54px">
+                                <img class="img" [src]="getTrackPicture(item) | urlSanitizer" />
+                            </div>
+                            <div style="flex: 1">
+                                <div class="title">
                                     <mat-icon *ngIf="currentTrack == item">volume_down</mat-icon>
-                                    {{item.common.title}}
-                                </td>
-                                <td class="duration">
-                                    {{numToString(item.duration)}}
-                                </td>
-                                <td>
-                                    <button class="close" mat-icon-button (click)="removeFromQueue(item, row)">
-                                        <mat-icon>close</mat-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                        </table>
+                                    <span [style.padding-left]="currentTrack == item ? '20px' : 0">
+                                        {{item.common.title}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="duration">
+                                {{numToString(item.duration)}}
+                            </div>
+                            <div style="flex: 0 0 32px">
+                                <button class="close" mat-icon-button (click)="removeFromQueue(item, row)">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                        </div>
                     </cdk-virtual-scroll-viewport>
                 </ng-scrollbar>
             </as-split-area>
