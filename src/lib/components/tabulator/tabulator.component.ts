@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild, ViewEncapsulation, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, Input, SimpleChanges, ViewChild, ViewEncapsulation, EventEmitter, Output } from '@angular/core';
 import { ColumnDefinition, RowComponent, TabulatorFull as Tabulator } from 'tabulator-tables';
 
 export type TabulatorEvent<T = any> = {
@@ -10,7 +10,10 @@ export type TabulatorEvent<T = any> = {
 @Component({
     selector: 'app-tabulator',
     templateUrl: './tabulator.component.html',
-    styleUrls: ['./tabulator.component.scss'],
+    styleUrls: [
+        '../../../../node_modules/tabulator-tables/dist/css/tabulator_simple.css',
+        './tabulator.component.scss'
+    ],
     encapsulation: ViewEncapsulation.None,
     imports: [],
     standalone: true
@@ -64,6 +67,7 @@ export class TabulatorComponent<T = any> {
     constructor() { }
 
     ngAfterViewInit() {
+
         const table = this.table = new Tabulator(this.tableRef.nativeElement, {
             index: this.key,
             data: this._dataSource,
