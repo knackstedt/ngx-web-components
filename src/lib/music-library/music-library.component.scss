@@ -1,5 +1,9 @@
 :host {
     height: 100%;
+    display: block;
+    background-color: #2e7d32;
+    --text-bright-color: #fff;
+    --text-color: #eee;
 }
 
 .contents {
@@ -28,12 +32,12 @@ img {
         height: 100%;
         width: 100%;
 
-        background: var(--panel-background-color);
+        background: #44444433;
     }
     &:after {
         z-index: 1;
         opacity: .5;
-        background-image: url(../../../assets/icons/mimetypes/media-optical-symbolic.svg);
+        // background-image: url(../../../assets/icons/mimetypes/media-optical-symbolic.svg);
     }
 }
 
@@ -78,7 +82,7 @@ img {
         right: 0;
         height: 48px;
         display: flex;
-        background-color: var(--background-color);
+        // background-color: var(--background-color);
     }
 
     .seeker {
@@ -96,7 +100,7 @@ img {
         .title {
             position: absolute;
             font-weight: bolder;
-            color: var(--text-bright-color);
+            // color: var(--text-bright-color);
         }
 
         .duration {
@@ -148,8 +152,8 @@ img {
         --mdc-slider-handle-height: 4px;
     }
 
-    .mat-mdc-tab.mdc-tab {
-        height: 28px;
+    .as-split-gutter {
+        background-color: #4caf50;
     }
 }
 
@@ -216,7 +220,7 @@ img {
         &:hover {
             background-color: var(--dialog-background-color);
         }
-        &.active{
+        &.active {
             background: var(--panel-background-color);
 
             &::after {

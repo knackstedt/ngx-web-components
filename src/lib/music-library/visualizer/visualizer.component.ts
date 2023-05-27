@@ -1,6 +1,5 @@
 import { Component, HostListener, Input, ViewChild, ViewContainerRef, ElementRef, EventEmitter, Output } from '@angular/core';
-import { Polygon, Star } from 'client/app/apps/music-library/visualizer/michael-bromley';
-import { UrlSanitizer } from 'client/app/pipes/urlsanitizer.pipe';
+import { Polygon, Star } from './michael-bromley';
 import { MatSelectModule } from '@angular/material/select';
 
 /**
@@ -16,7 +15,6 @@ import { MatSelectModule } from '@angular/material/select';
     templateUrl: './visualizer.component.html',
     styleUrls: ['./visualizer.component.scss'],
     imports: [
-        UrlSanitizer,
         MatSelectModule
     ],
     standalone: true

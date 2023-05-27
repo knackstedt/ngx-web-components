@@ -17,10 +17,17 @@
 Quickstart 
 =====
 
-## Install
+## Installation
 
+#### Install Packages
 ```bash
-$ npm install @dotglitch/ngx-web-components
+$ npm install @dotglitch/ngx-web-components material-icon-theme@4.27.0
+```
+
+#### Import stylesheets
+
+```
+@import "tabulator-tables/dist/css/tabulator_simple.css";
 ```
 
 
