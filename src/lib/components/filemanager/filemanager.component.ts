@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Inject, Input, OnInit, Optional, ViewChild, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,8 +7,8 @@ import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 
 import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { resolveIcon } from './icon-resolver';
 import { Fetch } from '../../util';
+import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from 'src/lib/types';
 
 // TODO:
 /**
@@ -79,7 +79,11 @@ export type NgxFileManagerConfiguration = Partial<{
         uploadEntryUrl: string
     },
 
-    mitPath: string,
+    /**
+     * The path that images are loaded from.
+     * Default value `/assets/dotglitch/webcomponents/`
+     */
+    assetPath: string,
     sidebarLocationStrategy: "known" | "currentDirectory"
 }>
 
@@ -104,8 +108,6 @@ export class FilemanagerComponent implements OnInit {
     @ViewChildren(FileGridComponent) fileGrids: FileGridComponent[];
     @ViewChild('tabGroup') tabGroup: MatTabGroup;
 
-    resolveIcon = resolveIcon;
-
     @Input() config: NgxFileManagerConfiguration = {
         apiSettings: {
             listEntriesUrl: `/api/filesystem/`,
@@ -122,10 +124,6 @@ export class FilemanagerComponent implements OnInit {
     sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type" = "a-z";
 
     isHomeAncestor = false;
-
-    location = {
-        icon: "assets/icons/"
-    }
 
     currentTab: FileViewTab = {} as any;
     tabIndex = 0;

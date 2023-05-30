@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
 import { NgScrollbarModule } from 'ngx-scrollbar';
@@ -6,9 +6,10 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ContextMenuItem, NgxContextMenuDirective } from '@dotglitch/ngx-ctx-menu';
 import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { Fetch } from '../../../services/fetch.service';
-import { resolveIcon } from '../icon-resolver';
 import { DialogService } from '../../../services/dialog.service';
 import { KeyboardService } from '../../../services/keyboard.service';
+import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
+import { IconResolver } from '../icon-resolver';
 
 const itemWidth = (80 + 20);
 const margin = 10;
@@ -340,12 +341,17 @@ export class FileGridComponent implements OnInit {
         // });
     }
 
+    iconResolver: IconResolver;
+
     constructor(
-        private fetch: Fetch,
-        private keyboard: KeyboardService,
-        private dialog: DialogService,
-        private fileManager: FilemanagerComponent
+        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
+        private readonly fetch: Fetch,
+        private readonly keyboard: KeyboardService,
+        private readonly dialog: DialogService,
+        private readonly fileManager: FilemanagerComponent
     ) {
+        this.iconResolver = new IconResolver(libConfig.assetPath);
+
         // ctrl + a => select all
         keyboard.onKeyCommand({
             key: "a",
@@ -408,7 +414,7 @@ export class FileGridComponent implements OnInit {
                 const descriptors = files.concat(dirs as any) as FSDescriptor[];
 
                 descriptors.forEach(f => {
-                    f['_icon'] = resolveIcon(f);
+                    f['_icon'] = this.iconResolver.resolveIcon(f);
                     if (f.kind == "file") {
                         f['_ctime'] = new Date(f.stats.ctimeMs);
                         f['_mtime'] = new Date(f.stats.mtimeMs);

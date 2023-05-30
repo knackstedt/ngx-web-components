@@ -2,90 +2,93 @@
     <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
 </div> -->
 
-<!-- Grid mode -->
-<ng-scrollbar
-    class="grid"
-    *ngIf="viewMode == 'grid'"
-    style="height: 100%; width: 100%"
-    track="vertical"
-    pointerEventsMethod="scrollbar"
-    [ngx-ctx-menu]="folderContextMenu"
+<div
+    style="display: contents"
+    [style.--dgc-fileicon-backdrop]="'url(' + iconResolver.path + '/pop/generic.svg)'"
 >
-    <div class="resize-observer" #fileViewport></div>
-    <cdk-virtual-scroll-viewport
-        itemSize="134"
-        scrollViewport
-        (click)="selectedItems = []; selectionText = ''"
-    >
-        <div class="row" *cdkVirtualFor="let row of sortedFolders">
-            <div class="file"
-                *ngFor="let item of row"
-                [class.selected]="selectedItems.includes(item)"
-                (click)="onSelect(item, $event)"
-                (dblclick)="onItemClick(item)"
-
-                [ngx-ctx-menu]="fileContextMenu"
-                [ngx-ctx-menu-context]="item"
-                [class.generic]="item['_icon'].needsBackdrop"
-
-                (dragstart)="onDragStart($event, item)"
-            >
-                <img [src]="item['_icon'].path"/>
-                <p>{{item.name}}</p>
-            </div>
-        </div>
-    </cdk-virtual-scroll-viewport>
-</ng-scrollbar>
-
-<!-- List mode -->
-<ng-container>
-    <div style="display: flex; height: 32px; align-items: center">
-        <div style="flex: 1; padding-left: 8px">Name</div>
-        <div style="width: 100px">Size</div>
-        <div style="width: 120px">Created</div>
-        <div style="width: 120px">Modified</div>
-    </div>
+    <!-- Grid mode -->
     <ng-scrollbar
-        class="list"
-        *ngIf="viewMode == 'list'"
-        style="height: calc(100% - 32px); width: 100%"
+        class="grid"
+        *ngIf="viewMode == 'grid'"
+        style="height: 100%; width: 100%"
         track="vertical"
         pointerEventsMethod="scrollbar"
         [ngx-ctx-menu]="folderContextMenu"
     >
         <div class="resize-observer" #fileViewport></div>
         <cdk-virtual-scroll-viewport
-            itemSize="42"
+            itemSize="134"
             scrollViewport
             (click)="selectedItems = []; selectionText = ''"
         >
-            <div
-                *cdkVirtualFor="let item of directoryContents; let i = index"
-                class="row"
-                [class.odd]="i%2==1"
-                [class.selected]="selectedItems.includes(item)"
-                [ngx-ctx-menu]="fileContextMenu"
-                [ngx-ctx-menu-context]="item"
+            <div class="row" *cdkVirtualFor="let row of sortedFolders">
+                <div class="file"
+                    *ngFor="let item of row"
+                    [class.selected]="selectedItems.includes(item)"
+                    (click)="onSelect(item, $event)"
+                    (dblclick)="onItemClick(item)"
 
-                (click)="onSelect(item, $event)"
-                (dblclick)="onItemClick(item)"
-                (dragstart)="onDragStart($event, item)"
-            >
-                <div style="flex: 1; display: flex">
-                    <img style="height: 24px; margin-right: 6px" [src]="item['_icon'].path"/>
+                    [ngx-ctx-menu]="fileContextMenu"
+                    [ngx-ctx-menu-context]="item"
+                    [class.generic]="item['_icon'].needsBackdrop"
+
+                    (dragstart)="onDragStart($event, item)"
+                >
+                    <img [src]="item['_icon'].path"/>
                     <p>{{item.name}}</p>
                 </div>
-
-                <div style="width: 100px">{{item.stats?.size ? bytesToString(item.stats.size) : ''}}</div>
-
-                <div style="width: 120px">{{item._ctime | date}}</div>
-                <div style="width: 120px">{{item._mtime | date}}</div>
             </div>
         </cdk-virtual-scroll-viewport>
     </ng-scrollbar>
-</ng-container>
 
+    <!-- List mode -->
+    <ng-container>
+        <div style="display: flex; height: 32px; align-items: center">
+            <div style="flex: 1; padding-left: 8px">Name</div>
+            <div style="width: 100px">Size</div>
+            <div style="width: 120px">Created</div>
+            <div style="width: 120px">Modified</div>
+        </div>
+        <ng-scrollbar
+            class="list"
+            *ngIf="viewMode == 'list'"
+            style="height: calc(100% - 32px); width: 100%"
+            track="vertical"
+            pointerEventsMethod="scrollbar"
+            [ngx-ctx-menu]="folderContextMenu"
+        >
+            <div class="resize-observer" #fileViewport></div>
+            <cdk-virtual-scroll-viewport
+                itemSize="42"
+                scrollViewport
+                (click)="selectedItems = []; selectionText = ''"
+            >
+                <div
+                    *cdkVirtualFor="let item of directoryContents; let i = index"
+                    class="row"
+                    [class.odd]="i%2==1"
+                    [class.selected]="selectedItems.includes(item)"
+                    [ngx-ctx-menu]="fileContextMenu"
+                    [ngx-ctx-menu-context]="item"
 
+                    (click)="onSelect(item, $event)"
+                    (dblclick)="onItemClick(item)"
+                    (dragstart)="onDragStart($event, item)"
+                >
+                    <div style="flex: 1; display: flex">
+                        <img style="height: 24px; margin-right: 6px" [src]="item['_icon'].path"/>
+                        <p>{{item.name}}</p>
+                    </div>
+
+                    <div style="width: 100px">{{item.stats?.size ? bytesToString(item.stats.size) : ''}}</div>
+
+                    <div style="width: 120px">{{item._ctime | date}}</div>
+                    <div style="width: 120px">{{item._mtime | date}}</div>
+                </div>
+            </cdk-virtual-scroll-viewport>
+        </ng-scrollbar>
+    </ng-container>
+</div>
 
 <div class="select-hint" *ngIf="selectionText">
     {{selectionText}}
