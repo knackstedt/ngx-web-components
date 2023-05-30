@@ -2,9 +2,11 @@ import { FSDescriptor } from './filemanager.component';
 import textExtensions from './textextensions';
 import { getMimeType } from './mimetype';
 import * as MIT from 'material-icon-theme/dist/material-icons.json';
+
 Object.keys(MIT).forEach(k => {
     console.log(k, MIT[k])
 })
+
 const folderNames = MIT['default'].folderNames;
 const fileNames = MIT['default'].fileNames;
 const fileExtensions = MIT['default'].fileExtensions;
