@@ -2,7 +2,7 @@
 rm src/assets/*.svg
 
 # Clone mat-icons JSON
-cp node_modules/material-icon-theme/dist/material-icons.json src/assets/icons.json
+cp node_modules/material-icon-theme/dist/material-icons.json src/assets/mat-icons.json
 
 # Clone the latest svg assets
-cp node_modules/material-icon-theme/icons/*.svg src/assets
+cp node_modules/material-icon-theme/icons/*.svg src/assets/material
