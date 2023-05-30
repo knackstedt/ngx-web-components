@@ -1,7 +1,7 @@
 import { FSDescriptor } from './filemanager.component';
 import textExtensions from './textextensions';
 import { getMimeType } from './mimetype';
-import * as MIT from 'material-icon-theme/dist/material-icons.json';
+import * as MIT from '../../../assets/icons.json';
 
 Object.keys(MIT).forEach(k => {
     console.log(k, MIT[k])
