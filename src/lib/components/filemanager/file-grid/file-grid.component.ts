@@ -87,6 +87,10 @@ export class FileGridComponent implements OnInit {
     // If the current directory is inside of an archive
     isArchive = true;
 
+    userIsDraggingFile = false;
+    draggingOver = false;
+
+
     readonly columns = [
         { id: "name", label: "Name" },
         { id: "size", label: "Size"},
@@ -102,14 +106,14 @@ export class FileGridComponent implements OnInit {
         { id: "recency", label: "Recency"},
         { id: "star", label: "Star"},
         { id: "detailed-type", label: "Detailed Type"},
-    ]
+    ];
 
     cols = [
         { id: "name", label: "Name" },
         { id: "size", label: "Size" },
         { id: "modified", label: "Modified" },
         { id: "star", label: "Star" }
-    ]
+    ];
 
     folderContextMenu: ContextMenuItem<FSDescriptor>[] = [
         {
@@ -547,5 +551,25 @@ export class FileGridComponent implements OnInit {
         // evt.dataTransfer.setData('text/uri-list', target);
         // evt.dataTransfer.setData('DownloadURL', `text/uri-list:${target}`);
         evt.dataTransfer.setData('text/plain', item.name);
+    }
+
+    onDrop(ev) {
+        ev.preventDefault();
+
+        if (ev.dataTransfer.items) {
+            // Use DataTransferItemList interface to access the file(s)
+            [...ev.dataTransfer.items].forEach((item, i) => {
+            // If dropped items aren't files, reject them
+            if (item.kind === "file") {
+                const file = item.getAsFile();
+                console.log(`… file[${i}].name = ${file.name}`);
+            }
+            });
+        } else {
+            // Use DataTransfer interface to access the file(s)
+            [...ev.dataTransfer.files].forEach((file, i) => {
+            console.log(`… file[${i}].name = ${file.name}`);
+            });
+        }
     }
 }

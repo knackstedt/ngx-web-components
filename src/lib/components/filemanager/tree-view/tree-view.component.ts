@@ -27,6 +27,13 @@ export class TreeViewComponent {
     @Output() click = new EventEmitter();
     @Output() loadChildren = new EventEmitter();
 
+    iconResolver: IconResolver;
+    constructor(
+        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
+    ) {
+        this.iconResolver = new IconResolver(libConfig.assetPath);
+    }
+
     tryLoadChildren(item, panel: MatExpansionPanel) {
         this.loadChildren.next({
             item,
@@ -36,12 +43,5 @@ export class TreeViewComponent {
                     panel.close();
             }
         })
-    }
-
-    iconResolver: IconResolver;
-    constructor(
-        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
-    ) {
-        this.iconResolver = new IconResolver(libConfig.assetPath);
     }
 }

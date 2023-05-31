@@ -1,5 +1,8 @@
 :host {
-    display: contents;
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .resize-observer {
@@ -70,6 +73,7 @@
             color: black;
         }
     }
+
     &.generic {
         &::before {
             content: " ";
@@ -126,4 +130,15 @@
     &:hover {
         display: none;
     }
+}
+
+.showDropArea {
+    border: 4px dashed #121212cc;
+    transition: border-color 250ms ease;
+}
+
+// This overrides a broken box-sizing rule
+:host ::ng-deep ng-scrollbar.ng-scrollbar {
+    box-sizing: border-box !important;
+    --scrollbar-thumb-color: #666;
 }

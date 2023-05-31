@@ -5,11 +5,18 @@
 <div
     style="display: contents"
     [style.--filemanager-fileicon-backdrop]="'url(' + iconResolver.path + '/pop/generic.svg)'"
+    (dragstart)="userIsDraggingFile = true"
+    (dragend)="userIsDraggingFile = false"
+    (dragover)="draggingOver = true"
+    (dragleave)="draggingOver = false"
+    (ondrop)="onDrop($event)"
 >
+    <!-- <ng-container *ngIf="draggingOver"></ng-container> -->
     <!-- Grid mode -->
     <ng-scrollbar
-        class="grid"
         *ngIf="viewMode == 'grid'"
+        class="grid"
+        [class.showDropArea]="draggingOver"
         style="height: 100%; width: 100%"
         track="vertical"
         pointerEventsMethod="scrollbar"
@@ -42,7 +49,11 @@
     </ng-scrollbar>
 
     <!-- List mode -->
-    <ng-container *ngIf="viewMode == 'list'">
+    <div
+        *ngIf="viewMode == 'list'"
+        [class.showDropArea]="draggingOver"
+        style="width: 100%; height: 100%"
+    >
         <div style="display: flex; height: 32px; align-items: center">
             <div style="flex: 1; padding-left: 8px">Name</div>
             <div style="width: 100px">Size</div>
@@ -86,7 +97,7 @@
                 </div>
             </cdk-virtual-scroll-viewport>
         </ng-scrollbar>
-    </ng-container>
+    </div>
 </div>
 
 <div class="select-hint" *ngIf="selectionText">

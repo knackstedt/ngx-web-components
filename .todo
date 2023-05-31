@@ -1,3 +1,14 @@
 Create 'alias' property to alias ids in lookup.
 
 Check for colliding ids / aliases
+
+
+Sort folders before files (list view)
+Forwards backwards buttons disabled color isn't very visible
+History has duplicate entries
+
+toolbar button items are flaky at best
+add initial path for file storage
+add "copy link" for logged in users
+
+Scale icons down with config
