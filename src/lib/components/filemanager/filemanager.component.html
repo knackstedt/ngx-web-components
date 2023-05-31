@@ -3,26 +3,30 @@
     [(showHiddenFiles)]="showHiddenFiles"
     [(showSidebar)]="showSidebar"
     [(sortOrder)]="sortOrder"
+    [config]="config"
     (onBreadcrumbClick)="onBreadcrumbClick($event)"
 />
 
 <as-split direction="horizontal" [gutterSize]="1">
-    <as-split-area [size]="20" style="background-color: #2c2c2c;">
+    <as-split-area [size]="20" style="background-color: var(--filemanager-sidebar-background-color, #2c2c2c)">
         <div class="sidebar" *ngIf="showSidebar" (click)="currentTab.selection = []">
-            <ul>
+            <app-tree-view
+                [data]="currentTab.sidebarItems"
+                (loadChildren)="onTreeViewLoadChildren($event)"
+                (click)="onTreeViewSelect($event)"
+            >
+            </app-tree-view>
+            <!-- <ul>
                 <li (click)="onBreadcrumbClick({ id: '/' })">
                     <img style="width: 24px; margin-right: 8px" src="assets/lib/icons/folder-open.svg">
                     Root
                 </li>
-                <li *ngFor="let dir of currentTab.sidebarItems" (click)="onBreadcrumbClick({ id: dir.path })">
-                    <!-- <img style="width: 24px; margin-right: 8px" src="assets/lib/icons/folder.svg"> -->
-                    <img style="height: 24px; margin-right: 8px" [src]="dir['_icon'].path"/>
-                    {{dir.name}}
+                <li *ngFor="let dir of currentTab.sidebarItems" (click)="onBreadcrumbClick({ id: dir.path })" style="padding-left: 20px">
                 </li>
-            </ul>
+            </ul> -->
         </div>
     </as-split-area>
-    <as-split-area [size]="80" style="background-color: #272727;">
+    <as-split-area [size]="80" style="background-color: var(--filemanager-background-color, #272727);">
         <div class="content"
             [style.--tab-height]="tabs.length > 1 ? '36px' : '0'"
         >

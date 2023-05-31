@@ -1,12 +1,15 @@
 :host {
     border: 1px solid #171717;
     border-bottom-color: #000;
+    border-radius: 6px;
     font-size: 14px;
     display: flex;
+    align-self: center;
     align-items: center;
     margin: 0;
     gap: 6px; // approx width of a slash `/`
-    height: 100%;
+    height: 30px;
+    background: var(--filemanager-breadcrumb-background, #444);
 }
 
 button {
@@ -17,6 +20,7 @@ button {
     transition: color 200ms ease;
     height: 100%;
     color: #bbb;
+    border-radius: 6px;
 
     &:hover {
         background-color: #4a4a4a;

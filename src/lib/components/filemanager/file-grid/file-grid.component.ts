@@ -130,13 +130,13 @@ export class FileGridComponent implements OnInit {
         //     }
         // },
         "separator",
-        {
-            isDisabled: (data) => true,
-            label: "_P_aste",
-            icon: "content_paste",
-            action: (evt) => {
-            }
-        },
+        // {
+        //     isDisabled: (data) => true,
+        //     label: "_P_aste",
+        //     icon: "content_paste",
+        //     action: (evt) => {
+        //     }
+        // },
         {
             label: "Select _A_ll",
             shortcutLabel: "Ctrl+A",
@@ -147,14 +147,14 @@ export class FileGridComponent implements OnInit {
                 this.selectedItemsChange.next(this.selectedItems);
             }
         },
-        "separator",
-        {
-            label: "P_r_operties",
-            icon: "find_in_page",
-            action: (evt) => {
+        // "separator",
+        // {
+        //     label: "P_r_operties",
+        //     icon: "find_in_page",
+        //     action: (evt) => {
 
-            }
-        }
+        //     }
+        // }
     ];
 
 
@@ -163,12 +163,13 @@ export class FileGridComponent implements OnInit {
             label: "Download",
             icon: "download",
             action: (data) => {
-                const target = `${window.origin}/api/filesystem/download?dir=${data.path}&file=${data.name}`;
+                let target = `${window.origin}/${this.config.apiSettings.downloadEntryUrl}`;
+
+                target += `${target.includes('?') ? '&' : '?'}path=${data.path + data.name}&ngsw-bypass=true`;
                 // window.open(target);
                 var link = document.createElement("a");
                 link.download = data.name;
                 link.href = target;
-                // document.body.appendChild(link);
                 link.click();
                 link.remove();
             }
@@ -248,45 +249,45 @@ export class FileGridComponent implements OnInit {
         //             .then(() => this.loadFolder())
         //     },
         // },
-        {
-            label: "Rename",
-            icon: "drive_file_rename_outline",
-            isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
-            shortcutLabel: "Ctrl+A",
-            action: (evt) => {
+        // {
+        //     label: "Rename",
+        //     icon: "drive_file_rename_outline",
+        //     isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
+        //     shortcutLabel: "Ctrl+A",
+        //     action: (evt) => {
 
-            },
-        },
+        //     },
+        // },
 
         // Extract Here
         // Extract To...
-        {
-            label: "Extract Here",
-            icon: "folder_zip",
-            shortcutLabel: "Ctrl+A",
-            isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
-            action: (evt) => {
-                // TODO
-            },
-        },
-        {
-            label: "Extract to...",
-            icon: "folder_zip",
-            shortcutLabel: "Ctrl+A",
-            isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
-            action: (evt) => {
-                // TODO
-            },
-        },
-        {
-            label: "Compress...",
-            icon: "folder_zip",
-            shortcutLabel: "Ctrl+A",
-            isDisabled: (data) => data.kind == "file",
-            action: (evt) => {
-                // TODO
-            },
-        },
+        // {
+        //     label: "Extract Here",
+        //     icon: "folder_zip",
+        //     shortcutLabel: "Ctrl+A",
+        //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
+        //     action: (evt) => {
+        //         // TODO
+        //     },
+        // },
+        // {
+        //     label: "Extract to...",
+        //     icon: "folder_zip",
+        //     shortcutLabel: "Ctrl+A",
+        //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
+        //     action: (evt) => {
+        //         // TODO
+        //     },
+        // },
+        // {
+        //     label: "Compress...",
+        //     icon: "folder_zip",
+        //     shortcutLabel: "Ctrl+A",
+        //     isDisabled: (data) => data.kind == "file",
+        //     action: (evt) => {
+        //         // TODO
+        //     },
+        // },
         {
             label: "Checksum",
             icon: "manage_search",
@@ -310,6 +311,7 @@ export class FileGridComponent implements OnInit {
                 },
             ],
             isVisible: (data) => {
+                return false;
                 return !this.isArchive || data.kind == "file";
             },
         },
@@ -321,14 +323,14 @@ export class FileGridComponent implements OnInit {
 
         //     },
         // },
-        "separator",
-        {
-            label: "P_r_operties",
-            icon: "find_in_page",
-            action: (evt) => {
+        // "separator",
+        // {
+        //     label: "P_r_operties",
+        //     icon: "find_in_page",
+        //     action: (evt) => {
 
-            },
-        }
+        //     },
+        // }
     ];
 
     performChecksum(path, digest) {

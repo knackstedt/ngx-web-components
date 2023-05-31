@@ -4,7 +4,7 @@
 
 <div
     style="display: contents"
-    [style.--dgc-fileicon-backdrop]="'url(' + iconResolver.path + '/pop/generic.svg)'"
+    [style.--filemanager-fileicon-backdrop]="'url(' + iconResolver.path + '/pop/generic.svg)'"
 >
     <!-- Grid mode -->
     <ng-scrollbar
@@ -42,7 +42,7 @@
     </ng-scrollbar>
 
     <!-- List mode -->
-    <ng-container>
+    <ng-container *ngIf="viewMode == 'list'">
         <div style="display: flex; height: 32px; align-items: center">
             <div style="flex: 1; padding-left: 8px">Name</div>
             <div style="width: 100px">Size</div>
@@ -51,7 +51,6 @@
         </div>
         <ng-scrollbar
             class="list"
-            *ngIf="viewMode == 'list'"
             style="height: calc(100% - 32px); width: 100%"
             track="vertical"
             pointerEventsMethod="scrollbar"

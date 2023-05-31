@@ -13,7 +13,7 @@
 
 :host ::ng-deep {
     .as-split-gutter {
-        background-color: #121212 !important;
+        background-color: var(--gutter-color, #121212) !important;
     }
     .mat-mdc-tab-header {
         height: var(--tab-height, 0);

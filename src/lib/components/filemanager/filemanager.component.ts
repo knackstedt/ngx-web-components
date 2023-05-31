@@ -1,5 +1,5 @@
-import { Component, Inject, Input, OnInit, Optional, ViewChild, ViewChildren } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { NgForOf, NgIf } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { AngularSplitModule } from 'angular-split';
@@ -7,8 +7,8 @@ import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 
 import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { TreeViewComponent } from './tree-view/tree-view.component';
 import { Fetch } from '../../util';
-import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from 'src/lib/types';
 
 // TODO:
 /**
@@ -68,6 +68,13 @@ export type NgxFileManagerConfiguration = Partial<{
      * Initial path
      */
     path: string,
+
+    /**
+     * Name of the "root" path `/`
+     * Defaults to "Storage"
+     */
+    rootName: string,
+
     /**
      * Maximum number of items to be stored in history.
      */
@@ -84,7 +91,9 @@ export type NgxFileManagerConfiguration = Partial<{
      * Default value `/assets/dotglitch/webcomponents/`
      */
     assetPath: string,
-    sidebarLocationStrategy: "known" | "currentDirectory"
+    sidebarLocationStrategy: "known" | "currentDirectory",
+
+    iconResolver: (file: FSDescriptor) => string
 }>
 
 @Component({
@@ -92,12 +101,14 @@ export type NgxFileManagerConfiguration = Partial<{
     templateUrl: './filemanager.component.html',
     styleUrls: ['./filemanager.component.scss'],
     imports: [
-        CommonModule,
+        NgIf,
+        NgForOf,
         AngularSplitModule,
         FileGridComponent,
         MatTabsModule,
         MatIconModule,
-        ToolbarComponent
+        ToolbarComponent,
+        TreeViewComponent
     ],
     providers: [
         NgxLazyLoaderService
@@ -129,13 +140,23 @@ export class FilemanagerComponent implements OnInit {
     tabIndex = 0;
     tabs: FileViewTab[] = [];
 
-    constructor(
+    constructor (
+        private fetch: Fetch
     ) {
+
     }
 
     ngOnInit(): void {
         this.initTab(this.config.path);
         this.currentTab = this.tabs[0];
+    }
+
+    onTreeViewLoadChildren({item, cb}) {
+        this.fetch.post(this.config.apiSettings.listEntriesUrl, { path: item.path + item.name, showHidden: this.showHiddenFiles })
+            .then((data: any) => {
+                const dirs: DirectoryDescriptor[] = data.dirs;
+                cb(dirs);
+            })
     }
 
     initTab(path: string) {
@@ -187,8 +208,33 @@ export class FilemanagerComponent implements OnInit {
         tab.history.splice(typeof this.config.maxHistoryLength == 'number' ? this.config.maxHistoryLength : 50);
     }
 
+    onTreeViewSelect(item: FSDescriptor) {
+        console.log("treeviewselect", item);
+        this.currentTab.path = item.path + item.name;
+    }
+
     onTabLoadFiles(tab: FileViewTab, files: FSDescriptor[]) {
-        tab.sidebarItems = files.filter(f => f.kind == "directory")
+        // tab.sidebarItems = files.filter(f => f.kind == "directory");
+        // return;
+
+        console.log(tab, files);
+
+        if (tab.sidebarItems.length == 0) {
+            tab.sidebarItems = files.filter(f => f.kind == "directory");
+            return;
+        }
+
+        const currentItems = tab.sidebarItems;
+        const dirItems = files.filter(f => f.kind == "directory");
+
+        function recurse(items) {
+            return items.find(i => tab.path?.startsWith(i.path));
+        }
+        const target = recurse(currentItems);
+
+        target['_children'] = dirItems;
+
+        tab.sidebarItems = currentItems;
     }
 
     getTabLabel(path: string) {

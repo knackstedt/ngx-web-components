@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { CommonModule, NgForOf, NgIf } from '@angular/common';
+import { NgxFileManagerConfiguration } from 'src/lib/components/filemanager/filemanager.component';
 
 export type Breadcrumb = {
     label: string,
@@ -20,8 +21,9 @@ export class GtkBreadcrumbComponent implements OnInit {
 
     // Could also do object array?
     @Input() crumbs: Breadcrumb[];
-
     @Output() crumbClick = new EventEmitter<Breadcrumb>();
+
+    @Input() config: NgxFileManagerConfiguration;
 
     constructor() { }
 

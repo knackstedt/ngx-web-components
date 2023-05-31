@@ -4,7 +4,7 @@ import { NgxAppMenuDirective, NgxContextMenuDirective, ContextMenuItem } from '@
 
 import { GtkIconButtonComponent } from './icon-button/icon-button.component';
 import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
-import { FileViewTab, FSDescriptor } from '../filemanager.component';
+import { FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 
 @Component({
     selector: 'app-toolbar',
@@ -22,6 +22,8 @@ import { FileViewTab, FSDescriptor } from '../filemanager.component';
 export class ToolbarComponent {
     @ViewChild('zoomTemplate') zoomTemplate: TemplateRef<any>;
     @ViewChild('actionTemplate') actionTemplate: TemplateRef<any>;
+
+    @Input() config: NgxFileManagerConfiguration;
 
 
     @Input() sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type";

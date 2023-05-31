@@ -18,6 +18,7 @@
     style="flex: 1"
     [crumbs]="currentTab.breadcrumb"
     (crumbClick)="onBreadcrumbClick.next($event); debug($event)"
+    [config]="config"
 />
 
 <gtk-icon-button

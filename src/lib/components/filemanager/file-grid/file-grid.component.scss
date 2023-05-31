@@ -39,7 +39,7 @@
     }
 
     &:hover {
-        background-color: #343434;
+        background-color: var(--filemanager-row-hover-background-color, #343434);
     }
 
     &.selected p {
@@ -49,7 +49,7 @@
         padding: 0 4px;
     }
     &.odd {
-        background-color: #323232;
+        background-color: var(--filemanager-row-alt-background-color, #323232);
     }
 }
 
@@ -74,7 +74,7 @@
         &::before {
             content: " ";
             position: absolute;
-            background: var(--dgc-fileicon-backdrop);
+            background: var(--filemanager-fileicon-backdrop);
             background-repeat: no-repeat;
             width: 100%;
             height: 100%;
