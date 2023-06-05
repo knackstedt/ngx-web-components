@@ -1,5 +1,5 @@
 import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
-import { Component, ContentChild, EventEmitter, Inject, Input, Optional, Output, TemplateRef } from '@angular/core';
+import { Component, ContentChild, EventEmitter, HostListener, Inject, Input, Optional, Output, TemplateRef, ElementRef, ViewContainerRef } from '@angular/core';
 import { MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
@@ -29,7 +29,7 @@ export class TreeViewComponent {
 
     iconResolver: IconResolver;
     constructor(
-        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
+        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {}
     ) {
         this.iconResolver = new IconResolver(libConfig.assetPath);
     }

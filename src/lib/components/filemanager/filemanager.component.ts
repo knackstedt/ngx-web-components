@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDrawerContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { AngularSplitModule } from 'angular-split';
 import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 
@@ -93,7 +94,18 @@ export type NgxFileManagerConfiguration = Partial<{
     assetPath: string,
     sidebarLocationStrategy: "known" | "currentDirectory",
 
-    iconResolver: (file: FSDescriptor) => string
+    iconResolver: (file: FSDescriptor) => string,
+
+    imageSize: "normal" | "small" | "huge",
+
+    /**
+     * This determines if the filemanager shows selected entries
+     *
+     * If set to `focusFiles`, file paths that match from the provided `focusedFiles`
+     * will be highlighted, and can be selected / deselected.
+     */
+    mode: "focusFiles" | "normal",
+    focusedFiles: string[]
 }>
 
 @Component({
@@ -107,6 +119,7 @@ export type NgxFileManagerConfiguration = Partial<{
         FileGridComponent,
         MatTabsModule,
         MatIconModule,
+        MatSidenavModule,
         ToolbarComponent,
         TreeViewComponent
     ],
@@ -116,8 +129,12 @@ export type NgxFileManagerConfiguration = Partial<{
     standalone: true
 })
 export class FilemanagerComponent implements OnInit {
-    @ViewChildren(FileGridComponent) fileGrids: FileGridComponent[];
     @ViewChild('tabGroup') tabGroup: MatTabGroup;
+    @ViewChildren(FileGridComponent) fileGrids: FileGridComponent[];
+    @ViewChild(TreeViewComponent) treeView: TreeViewComponent;
+    @ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
+    @ViewChild(MatDrawerContainer) drawer: MatDrawerContainer;
+
 
     @Input() config: NgxFileManagerConfiguration = {
         apiSettings: {
@@ -127,10 +144,37 @@ export class FilemanagerComponent implements OnInit {
         }
     };
 
+    @Input() gridSize: "small" | "normal" | "large" = "normal";
+    @Input() mode: "grid" | "list";
+
+
+    @Input() value: FSDescriptor[];
+    @Output() valueChange = new EventEmitter<FSDescriptor[]>();
+
+    gridValues: FSDescriptor[][] = [];
+
+    /**
+     * Emits when focused files change.
+     * Only available in `focusFiles` mode.
+     */
+    @Output() focusedFilesChange = new EventEmitter();
+    /**
+     * Emits when a file is uploaded.
+     */
+    @Output() fileUpload = new EventEmitter();
+    /**
+     * Emits when a file is downloaded.
+     */
+    @Output() fileDownload = new EventEmitter();
+    @Output() fileRename = new EventEmitter();
+    @Output() fileDelete = new EventEmitter();
+    @Output() fileCopy = new EventEmitter();
+    @Output() filePaste = new EventEmitter();
+
     showHiddenFiles = false;
     showSidebar = true;
-
-    viewMode = "list";
+    sidebarOverlay = false;
+    width = 0;
 
     sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type" = "a-z";
 
@@ -141,6 +185,7 @@ export class FilemanagerComponent implements OnInit {
     tabs: FileViewTab[] = [];
 
     constructor (
+        private viewContainer: ViewContainerRef,
         private fetch: Fetch
     ) {
 
@@ -149,6 +194,10 @@ export class FilemanagerComponent implements OnInit {
     ngOnInit(): void {
         this.initTab(this.config.path);
         this.currentTab = this.tabs[0];
+    }
+
+    ngAfterViewInit() {
+        this.onResize();
     }
 
     onTreeViewLoadChildren({item, cb}) {
@@ -166,7 +215,7 @@ export class FilemanagerComponent implements OnInit {
             breadcrumb: this.calcBreadcrumb(path),
             path,
             selection: [],
-            viewMode: "grid",
+            viewMode: this.mode || 'grid',
             historyIndex: 0,
             history: [],
             sidebarItems: []
@@ -237,6 +286,11 @@ export class FilemanagerComponent implements OnInit {
         tab.sidebarItems = currentItems;
     }
 
+    onGridValueChange() {
+        this.value = this.gridValues.flat(1);
+        this.valueChange.emit(this.value)
+    }
+
     getTabLabel(path: string) {
         return path?.split('/').filter(p => p).pop();
     }
@@ -248,11 +302,21 @@ export class FilemanagerComponent implements OnInit {
     async onResize() {
         // Trigger re-calculation of the view
         this.fileGrids.forEach(g => g.resize());
+
+        const el = this.viewContainer.element.nativeElement as HTMLElement;
+        const bounds = el.getBoundingClientRect();
+        this.width = bounds.width;
+
+        // If the view area is less than 650px wide, use overlay the sidebar panel
+        this.sidebarOverlay = bounds.width < 650;
+        if (this.sidebarOverlay == false && [...this.drawer._drawers][0].opened) {
+            this.drawer.close();
+        }
     }
 
     async onResizeEnd() {
-        setTimeout(() => {
-            this.onResize()
-        }, 250);
+        this.onResize();
+
+        setTimeout(() => this.onResize(), 250);
     }
 }

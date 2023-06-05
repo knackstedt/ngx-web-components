@@ -15,7 +15,8 @@
     <!-- Grid mode -->
     <ng-scrollbar
         *ngIf="viewMode == 'grid'"
-        class="grid"
+        class="grid {{gridSize}} {{config.imageSize || 'normal'}}"
+        [class.selectionMode]="config.mode == 'focusFiles'"
         [class.showDropArea]="draggingOver"
         style="height: 100%; width: 100%"
         track="vertical"
@@ -26,23 +27,31 @@
         <cdk-virtual-scroll-viewport
             itemSize="134"
             scrollViewport
-            (click)="selectedItems = []; selectionText = ''"
+            (click)="selection = []; selectionText = ''"
         >
             <div class="row" *cdkVirtualFor="let row of sortedFolders">
                 <div class="file"
                     *ngFor="let item of row"
-                    [class.selected]="selectedItems.includes(item)"
-                    (click)="onSelect(item, $event)"
-                    (dblclick)="onItemClick(item)"
-
+                    [class.selected]="selection.includes(item)"
+                    [class.generic]="item['_icon'].needsBackdrop"
                     [ngx-ctx-menu]="fileContextMenu"
                     [ngx-ctx-menu-context]="item"
-                    [class.generic]="item['_icon'].needsBackdrop"
-
-                    (dragstart)="onDragStart($event, item)"
                 >
-                    <img [src]="item['_icon'].path"/>
-                    <p>{{item.name}}</p>
+                    <mat-checkbox
+                        #checkbox
+                        *ngIf="config.mode == 'focusFiles' && item.kind == 'file'"
+                        [checked]="item['_value']"
+                        (change)="onToggle(item, $event)"
+                    />
+                    <div
+                        style="display: contents"
+                        (click)="onSelect(item, $event)"
+                        (dblclick)="onItemClick(item)"
+                        (dragstart)="onDragStart($event, item)"
+                    >
+                        <img [src]="item['_icon'].path"/>
+                        <p>{{item.name}}</p>
+                    </div>
                 </div>
             </div>
         </cdk-virtual-scroll-viewport>
@@ -71,13 +80,13 @@
             <cdk-virtual-scroll-viewport
                 itemSize="42"
                 scrollViewport
-                (click)="selectedItems = []; selectionText = ''"
+                (click)="selection = []; selectionText = ''"
             >
                 <div
                     *cdkVirtualFor="let item of directoryContents; let i = index"
                     class="row"
                     [class.odd]="i%2==1"
-                    [class.selected]="selectedItems.includes(item)"
+                    [class.selected]="selection.includes(item)"
                     [ngx-ctx-menu]="fileContextMenu"
                     [ngx-ctx-menu-context]="item"
 
@@ -85,7 +94,14 @@
                     (dblclick)="onItemClick(item)"
                     (dragstart)="onDragStart($event, item)"
                 >
-                    <div style="flex: 1; display: flex">
+                    <div style="flex: 1; display: flex; align-items: center;">
+                        <mat-checkbox
+                            #checkbox
+                            *ngIf="config.mode == 'focusFiles' && item.kind == 'file'"
+                            [checked]="item['_value']"
+                            (change)="onToggle(item, $event)"
+                        />
+
                         <img style="height: 24px; margin-right: 6px" [src]="item['_icon'].path"/>
                         <p>{{item.name}}</p>
                     </div>

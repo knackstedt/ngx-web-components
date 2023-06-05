@@ -1,9 +1,13 @@
 import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CommonModule } from '@angular/common';
-import { NgScrollbarModule } from 'ngx-scrollbar';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
+import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+
 import { ContextMenuItem, NgxContextMenuDirective } from '@dotglitch/ngx-ctx-menu';
+import { NgScrollbarModule } from 'ngx-scrollbar';
+
 import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { Fetch } from '../../../services/fetch.service';
 import { DialogService } from '../../../services/dialog.service';
@@ -12,22 +16,19 @@ import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../type
 import { IconResolver } from '../icon-resolver';
 
 const itemWidth = (80 + 20);
-const margin = 10;
-
-const isArchive = (file: string | FSDescriptor) => {
-    const path = typeof file == 'string' ? file : (file.path + file.name);
-    const ext = path.split('.').pop();
-    return ["zip", "7z", "tar", 'tar.gz', 'tar.bz', 'rar'].includes(ext);
-}
 
 @Component({
     selector: 'app-file-grid',
     templateUrl: './file-grid.component.html',
     styleUrls: ['./file-grid.component.scss'],
     imports: [
+        NgIf,
+        NgForOf,
+        DatePipe,
         MatTabsModule,
-        CommonModule,
         NgScrollbarModule,
+        MatInputModule,
+        MatCheckboxModule,
         NgxContextMenuDirective,
         ScrollingModule
     ],
@@ -59,14 +60,19 @@ export class FileGridComponent implements OnInit {
 
     @Input() viewMode: "list" | "grid" = "grid";
 
+    @Input() gridSize: "small" | "normal" | "large" = "normal";
+
     @Output() fileSelect = new EventEmitter<FSDescriptor[]>();
     @Output() fileOpen = new EventEmitter<FSDescriptor[]>();
     @Output() newTab = new EventEmitter<{ path: string; }>();
     @Output() loadFiles = new EventEmitter<FSDescriptor[]>();
 
     directoryContents: FSDescriptor[] = [];
-    @Input("selection") selectedItems: FSDescriptor[] = [];
-    @Output("selectionChange") selectedItemsChange = new EventEmitter<FSDescriptor[]>();
+    @Input() selection: FSDescriptor[] = [];
+    @Output() selectionChange = new EventEmitter<FSDescriptor[]>();
+
+    @Input() value: FSDescriptor[] = [];
+    @Output() valueChange = new EventEmitter<FSDescriptor[]>();
 
     selectionText: string;
 
@@ -146,9 +152,9 @@ export class FileGridComponent implements OnInit {
             shortcutLabel: "Ctrl+A",
             icon: "select_all",
             action: (evt) => {
-                this.selectedItems = this._sortFilter();
+                this.selection = this._sortFilter();
                 this.selectionText = this.getSelectionText();
-                this.selectedItemsChange.next(this.selectedItems);
+                this.selectionChange.next(this.selection);
             }
         },
         // "separator",
@@ -176,6 +182,7 @@ export class FileGridComponent implements OnInit {
                 link.href = target;
                 link.click();
                 link.remove();
+                this.fileManager.fileDownload.next(data);
             }
         },
         // {
@@ -363,9 +370,9 @@ export class FileGridComponent implements OnInit {
             key: "a",
             ctrl: true,
         }).subscribe(evt => {
-            this.selectedItems = this._sortFilter();
+            this.selection = this._sortFilter();
             this.selectionText = this.getSelectionText();
-            this.selectedItemsChange.next(this.selectedItems);
+            this.selectionChange.next(this.selection);
         });
 
         // ctrl + c => copy file names to clipboard
@@ -396,7 +403,7 @@ export class FileGridComponent implements OnInit {
         keyboard.onKeyCommand({
             key: "Enter",
         }).subscribe(evt => {
-            const files = this.directoryContents.filter(dc => this.selectedItems.find(i => i.name == dc.name));
+            const files = this.directoryContents.filter(dc => this.selection.find(i => i.name == dc.name));
             // this.windowManager.openFiles(files as any);
         });
 
@@ -404,7 +411,7 @@ export class FileGridComponent implements OnInit {
         keyboard.onKeyCommand({
             key: "delete",
         }).subscribe(evt => {
-            const files = this.directoryContents.filter(dc => this.selectedItems.find(i => i.name == dc.name));
+            const files = this.directoryContents.filter(dc => this.selection.find(i => i.name == dc.name));
         });
     }
 
@@ -456,7 +463,7 @@ export class FileGridComponent implements OnInit {
         evt.stopPropagation();
 
         if (this.keyboard.shiftPressed) {
-            let start = this.directoryContents.findIndex(i => i.name == this.selectedItems.slice(-1, 1)[0].name);
+            let start = this.directoryContents.findIndex(i => i.name == this.selection.slice(-1, 1)[0].name);
             let end = this.directoryContents.indexOf(item);
 
             if (start == -1)
@@ -466,18 +473,18 @@ export class FileGridComponent implements OnInit {
                 ? this.directoryContents.slice(end, start + 1)
                 : this.directoryContents.slice(start, end + 1);
 
-            this.selectedItems = items;
+            this.selection = items;
         }
         else if (this.keyboard.ctrlPressed) {
-            if (!this.selectedItems.includes(item))
-                this.selectedItems.push(item);
+            if (!this.selection.includes(item))
+                this.selection.push(item);
             else // Case that we selected the same item twice
-                this.selectedItems.splice(this.selectedItems.indexOf(item), 1);
+                this.selection.splice(this.selection.indexOf(item), 1);
         }
         else
-            this.selectedItems = [item];
+            this.selection = [item];
 
-        this.selectedItemsChange.next(this.selectedItems);
+        this.selectionChange.next(this.selection);
         this.selectionText = this.getSelectionText();
     }
 
@@ -493,6 +500,20 @@ export class FileGridComponent implements OnInit {
         }
     }
 
+    onToggle(item, state: MatCheckboxChange) {
+        item['_value'] = state.checked;
+
+        if (state.checked) {
+            this.value.push(item);
+        }
+        else {
+            const i = this.value.findIndex(v => v == item);
+            if (i >= 0)
+                this.value.splice(i, 1);
+        }
+        this.valueChange.next(this.value);
+    }
+
     _sortFilter(): FileDescriptor[] {
         return this.directoryContents?.filter(d => d.kind == 'directory')
             .concat(this.directoryContents?.filter(d => d.kind == 'file')
@@ -501,19 +522,19 @@ export class FileGridComponent implements OnInit {
     }
 
     private getSelectionText() {
-        const dirCount = this.selectedItems.filter(s => s.kind == "directory").length;
-        const fileCount = this.selectedItems.filter(s => s.kind == "file").length;
+        const dirCount = this.selection.filter(s => s.kind == "directory").length;
+        const fileCount = this.selection.filter(s => s.kind == "file").length;
 
         if (dirCount + fileCount == 0) return "";
 
         const totalSize =
             this.directoryContents
                 .filter(d => d.kind == "file")
-                .filter(d => this.selectedItems?.find(i => i.name == d.name))
+                .filter(d => this.selection?.find(i => i.name == d.name))
                 .map(d => d['stats'].size).reduce((a, b) => a + b, 0);
 
         if (dirCount + fileCount == 1)
-            return `"${this.selectedItems[0].name}" selected (${this.bytesToString(totalSize)})`;
+            return `"${this.selection[0].name}" selected (${this.bytesToString(totalSize)})`;
 
         if (dirCount > 0 && fileCount == 0)
             return `"${dirCount}" folders selected`;

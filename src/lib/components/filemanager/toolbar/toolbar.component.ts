@@ -1,17 +1,21 @@
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { NgxAppMenuDirective, NgxContextMenuDirective, ContextMenuItem } from '@dotglitch/ngx-ctx-menu';
 
 import { GtkIconButtonComponent } from './icon-button/icon-button.component';
 import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
-import { FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
+import { FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-toolbar',
     templateUrl: './toolbar.component.html',
     styleUrls: ['./toolbar.component.scss'],
     imports: [
-        CommonModule,
+        NgIf,
+        MatIconModule,
+        MatButtonModule,
         GtkIconButtonComponent,
         GtkBreadcrumbComponent,
         NgxContextMenuDirective,
@@ -37,6 +41,12 @@ export class ToolbarComponent {
     @Output() showHiddenFilesChange = new EventEmitter<boolean>();
     @Input() showSidebar: boolean;
     @Output() showSidebarChange = new EventEmitter<boolean>();
+
+    constructor(
+        public filemanager: FilemanagerComponent
+    ) {
+
+    }
 
     fileOptions: ContextMenuItem<FSDescriptor>[] = [
         {
@@ -100,5 +110,12 @@ export class ToolbarComponent {
         console.log("history <-", tab)
         tab.historyIndex++;
         tab.path = tab.history[tab.historyIndex - 1];
+    }
+
+    toggleDrawer() {
+        if ([...this.filemanager.drawer._drawers][0].opened)
+            this.filemanager.drawer.close();
+        else
+            this.filemanager.drawer.open();
     }
 }

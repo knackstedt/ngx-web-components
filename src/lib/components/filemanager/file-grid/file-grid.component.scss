@@ -13,106 +13,132 @@
     right: 0;
 }
 
-.grid .row {
-    flex: 1;
-    // transition: background-color 200ms ease;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 80px);
-    justify-content: space-between;
-    grid-gap: 20px;
-    grid-auto-rows: min-content;
-    padding: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-right: 10px;
-}
-
-.list .row {
-    flex: 1;
-    // transition: background-color 200ms ease;
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 42px;
-
-    p {
-        margin: 0;
+.grid {
+    .row {
+        flex: 1;
+        // transition: background-color 200ms ease;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 80px);
+        justify-content: space-between;
+        grid-gap: 20px;
+        grid-auto-rows: min-content;
+        padding: 10px;
+        margin-right: 10px;
     }
 
-    &:hover {
-        background-color: var(--filemanager-row-hover-background-color, #343434);
-    }
+    .file {
+        width: 80px;
+        z-index: 1;
+        position: relative;
+        transition: opacity 50ms ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        // -webkit-user-drag: element;
 
-    &.selected p {
-        background-color: #8ad9d9;
-        color: black;
-        border-radius: 5px;
-        padding: 0 4px;
-    }
-    &.odd {
-        background-color: var(--filemanager-row-alt-background-color, #323232);
-    }
-}
+        &.selected {
+            p {
+                background-color: #8ad9d9;
+                color: black;
+            }
+        }
 
-.file {
-    width: 80px;
-    z-index: 1;
-    position: relative;
-    transition: opacity 50ms ease-in-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    // -webkit-user-drag: element;
+        &.generic {
+            &::before {
+                content: " ";
+                position: absolute;
+                background: var(--filemanager-fileicon-backdrop);
+                background-repeat: no-repeat;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                left: 0;
+            }
+            img {
+                height: 44px;
+                width: 44px;
+                margin-top: 28px;
+                margin-bottom: 8px;
+            }
+        }
 
-    &.selected {
+        img {
+            user-select: none;
+        }
         p {
+            height: 50px;
+            width: 100%;
+            margin: 0;
+            padding: 2px;
+            font-size: 14px;
+            line-height: 16px;
+            border-radius: 4px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+            overflow-wrap: break-word;
+            transition: background-color 50ms ease-in-out, color 50ms ease-in-out;
+        }
+        mat-checkbox {
+            position: absolute;
+            left: -32px;
+            top: -16px;
+        }
+    }
+}
+
+:host ::ng-deep  {
+
+    .small .file {
+        width: 46px;
+    }
+    .grid.selectionMode {
+        .row {
+            padding-left: 30px;
+        }
+        .cdk-virtual-scroll-content-wrapper {
+            padding-top: 10px;
+        }
+    }
+
+}
+
+.list {
+    .row {
+        flex: 1;
+        // transition: background-color 200ms ease;
+        display: flex;
+        align-items: center;
+        padding: 5px 10px;
+        height: 42px;
+
+        p {
+            margin: 0;
+        }
+
+        &:hover {
+            background-color: var(--filemanager-row-hover-background-color, #343434);
+        }
+
+        &.selected p {
             background-color: #8ad9d9;
             color: black;
+            border-radius: 5px;
+            padding: 0 4px;
         }
-    }
+        &.odd {
+            background-color: var(--filemanager-row-alt-background-color, #323232);
+        }
+        mat-checkbox {
 
-    &.generic {
-        &::before {
-            content: " ";
-            position: absolute;
-            background: var(--filemanager-fileicon-backdrop);
-            background-repeat: no-repeat;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            left: 0;
         }
-        img {
-            height: 44px;
-            width: 44px;
-            margin-top: 28px;
-            margin-bottom: 8px;
-        }
-    }
-
-    img {
-        pointer-events: none;
-    }
-    p {
-        height: 50px;
-        width: 100%;
-        margin: 0;
-        padding: 2px;
-        font-size: 14px;
-        line-height: 16px;
-        border-radius: 4px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        text-overflow: ellipsis;
-        overflow-wrap: break-word;
-        transition: background-color 50ms ease-in-out, color 50ms ease-in-out;
     }
 }
+
+
 
 .select-hint {
     position: absolute;
