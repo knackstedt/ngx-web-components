@@ -21,12 +21,12 @@
     "angular-service"
   ],
   "peerDependencies": {
-    "@angular/common": "^15.1.0",
-    "@angular/core": "^15.1.0",
-    "@angular/cdk": "^15.1.0",
-    "@angular/material": "^15.1.0",
-    "@dotglitch/ngx-ctx-menu": "^0.2.6",
-    "@dotglitch/ngx-lazy-loader": "^0.0.19"
+    "@angular/common": ">=15.0.0",
+    "@angular/core": ">=15.0.0",
+    "@angular/cdk": ">=15.0.0",
+    "@angular/material": ">=15.0.0",
+    "@dotglitch/ngx-ctx-menu": "0.2.x",
+    "@dotglitch/ngx-lazy-loader": "0.0.x"
   },
   "dependencies": {
     "tslib": "^2.3.0",
