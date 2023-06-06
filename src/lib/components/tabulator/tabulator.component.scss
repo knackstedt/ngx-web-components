@@ -58,5 +58,14 @@
         &.tabulator-selectable:hover {
             background-color: var(--table-row-hover-background-color);
         }
+
+        &.selected {
+            background-color: var(--table-row-selected-background-color, #0D47A166);
+            color: var(--table-row-selected-color);
+
+            &:hover {
+                background-color: var(--table-row-selected-hover-background-color, #0D47A1);
+            }
+        }
     }
 }

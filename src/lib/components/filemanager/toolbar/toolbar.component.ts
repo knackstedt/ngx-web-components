@@ -42,6 +42,9 @@ export class ToolbarComponent {
     @Input() showSidebar: boolean;
     @Output() showSidebarChange = new EventEmitter<boolean>();
 
+    @Input() drawerMode = false;
+    @Input() showBareMinimum = false;
+
     constructor(
         public filemanager: FilemanagerComponent
     ) {

@@ -4,13 +4,22 @@
     [(showSidebar)]="showSidebar"
     [(sortOrder)]="sortOrder"
     [config]="config"
+    [showBareMinimum]="width < 500"
     (onBreadcrumbClick)="onBreadcrumbClick($event)"
 />
-    <!-- [(drawerState)] -->
-
 
 <mat-drawer-container>
     <mat-drawer #drawer mode="over">
+        <app-toolbar
+            *ngIf="width < 500"
+            [currentTab]="currentTab"
+            [(showHiddenFiles)]="showHiddenFiles"
+            [(showSidebar)]="showSidebar"
+            [(sortOrder)]="sortOrder"
+            [config]="config"
+            [drawerMode]="true"
+            (onBreadcrumbClick)="onBreadcrumbClick($event)"
+        />
         <app-tree-view
             [data]="currentTab.sidebarItems"
             (loadChildren)="onTreeViewLoadChildren($event)"

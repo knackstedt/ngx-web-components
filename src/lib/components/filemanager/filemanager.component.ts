@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,8 @@ import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { TreeViewComponent } from './tree-view/tree-view.component';
 import { Fetch } from '../../util';
+import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../types';
+import { IconResolver } from './icon-resolver';
 
 // TODO:
 /**
@@ -148,7 +150,7 @@ export class FilemanagerComponent implements OnInit {
     @Input() mode: "grid" | "list";
 
 
-    @Input() value: FSDescriptor[];
+    @Input() value: FSDescriptor[] = [];
     @Output() valueChange = new EventEmitter<FSDescriptor[]>();
 
     gridValues: FSDescriptor[][] = [];
@@ -184,11 +186,14 @@ export class FilemanagerComponent implements OnInit {
     tabIndex = 0;
     tabs: FileViewTab[] = [];
 
+    iconResolver: IconResolver;
+
     constructor (
+        @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
         private viewContainer: ViewContainerRef,
         private fetch: Fetch
     ) {
-
+        this.iconResolver = new IconResolver(libConfig.assetPath);
     }
 
     ngOnInit(): void {
@@ -198,6 +203,8 @@ export class FilemanagerComponent implements OnInit {
 
     ngAfterViewInit() {
         this.onResize();
+
+        setTimeout(() => this.onResize(), 250);
     }
 
     onTreeViewLoadChildren({item, cb}) {
@@ -318,5 +325,18 @@ export class FilemanagerComponent implements OnInit {
         this.onResize();
 
         setTimeout(() => this.onResize(), 250);
+    }
+
+    getSelection() {
+        if (this.currentTab.viewMode == "grid") {
+            return this.currentTab.selection
+        }
+        else {
+            return this.value;
+        }
+    }
+
+    clearSelection() {
+        this.fileGrids.forEach(g => g.clearSelection());
     }
 }

@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
-import { ContextMenuItem, NgxContextMenuDirective } from '@dotglitch/ngx-ctx-menu';
+import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
@@ -14,6 +14,9 @@ import { DialogService } from '../../../services/dialog.service';
 import { KeyboardService } from '../../../services/keyboard.service';
 import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
 import { IconResolver } from '../icon-resolver';
+import { TabulatorComponent } from '../../tabulator/tabulator.component';
+import { MatDialog } from '@angular/material/dialog';
+import { CellComponent, EmptyCallback } from 'tabulator-tables';
 
 const itemWidth = (80 + 20);
 
@@ -29,6 +32,7 @@ const itemWidth = (80 + 20);
         NgScrollbarModule,
         MatInputModule,
         MatCheckboxModule,
+        TabulatorComponent,
         NgxContextMenuDirective,
         ScrollingModule
     ],
@@ -36,6 +40,7 @@ const itemWidth = (80 + 20);
 })
 export class FileGridComponent implements OnInit {
     @ViewChild("fileViewport") filesRef: ElementRef;
+    @ViewChild(TabulatorComponent) tabulator: TabulatorComponent;
 
     private _path: string;
     @Input() set path(value: string) {
@@ -361,6 +366,7 @@ export class FileGridComponent implements OnInit {
         private readonly fetch: Fetch,
         private readonly keyboard: KeyboardService,
         private readonly dialog: DialogService,
+        private readonly matDialog: MatDialog,
         private readonly fileManager: FilemanagerComponent
     ) {
         this.iconResolver = new IconResolver(libConfig.assetPath);
@@ -429,14 +435,16 @@ export class FileGridComponent implements OnInit {
                 descriptors.forEach(f => {
                     f['_icon'] = this.iconResolver.resolveIcon(f);
                     if (f.kind == "file") {
-                        f['_ctime'] = new Date(f.stats.ctimeMs);
-                        f['_mtime'] = new Date(f.stats.mtimeMs);
+                        f['_ctime'] = new Date(f.stats.ctimeMs).toLocaleString();
+                        f['_mtime'] = new Date(f.stats.mtimeMs).toLocaleString();
+                        f['_size'] = this.bytesToString(f.stats.size);
                     }
                 });
 
                 console.log(descriptors)
                 this.directoryContents = descriptors;
 
+                this._sortFilter();
                 this.resize();
                 this.loadFiles.next(descriptors);
             })
@@ -489,6 +497,7 @@ export class FileGridComponent implements OnInit {
     }
 
     onItemClick(file: FSDescriptor) {
+        console.log(file)
         if (file.kind == "directory"){
             this.path = file.path + file.name;
         }
@@ -503,6 +512,11 @@ export class FileGridComponent implements OnInit {
     onToggle(item, state: MatCheckboxChange) {
         item['_value'] = state.checked;
 
+        // TODO: What causes this to be null when initialized with an array?
+        if (!this.value) {
+            this.value = [];
+        }
+
         if (state.checked) {
             this.value.push(item);
         }
@@ -514,8 +528,15 @@ export class FileGridComponent implements OnInit {
         this.valueChange.next(this.value);
     }
 
+    async clearSelection() {
+        this.value = [];
+        this.valueChange.next(this.value);
+
+        this.tabulator.table.getRows().forEach(r => r.getElement().classList.remove('selected'));
+    }
+
     _sortFilter(): FileDescriptor[] {
-        return this.directoryContents?.filter(d => d.kind == 'directory')
+        return this.directoryContents = this.directoryContents?.filter(d => d.kind == 'directory')
             .concat(this.directoryContents?.filter(d => d.kind == 'file')
                 .sort(this.sorters[this.sortOrder])
             ) as FileDescriptor[];
@@ -557,6 +578,11 @@ export class FileGridComponent implements OnInit {
     }
 
     public resize() {
+        if (!this.filesRef) {
+            setTimeout(() => this.resize(), 25);
+            return;
+        };
+
         const bounds = (this.filesRef.nativeElement as HTMLElement).getBoundingClientRect();
         this.itemsPerRow = Math.floor(bounds.width / itemWidth);
         if (this.itemsPerRow > 100)
@@ -592,5 +618,46 @@ export class FileGridComponent implements OnInit {
             console.log(`… file[${i}].name = ${file.name}`);
             });
         }
+    }
+
+    nameCellFormatter = ((cell: CellComponent, formatterParams: {}, onRendered: EmptyCallback) => {
+        // TODO: Sanitize?
+        const item = cell.getData() as FSDescriptor;
+        return `
+            <span style="display: flex; align-items: center">
+                <img style="height: 24px; margin-right: 6px" src="${item['_icon'].path}"/>
+                <p style="margin: 0">${item.name}</p>
+            </span>
+        `;
+    }).bind(this)
+
+    onRowCtx({event, row}) {
+        openContextMenu(this.matDialog, this.fileContextMenu, row.getData(), event);
+    }
+
+    onRowClick({event, row, data}) {
+        // $event.data['_value'] = $event.data['_value'] == true ? false : true
+        // console.log(event, row, data, this.value);
+
+        const rowEl = row.getElement();
+        let state = rowEl.classList.contains('selected');
+        data['_value'] = !state;
+
+        if (!this.value) {
+            this.value = [];
+        }
+
+        if (!state) {
+            rowEl.classList.add('selected');
+            this.value.push(data);
+        }
+        else {
+            rowEl.classList.remove('selected');
+            const i = this.value.findIndex(v => v == data);
+            if (i >= 0)
+                this.value.splice(i, 1);
+        }
+
+        this.valueChange.next(this.value);
     }
 }

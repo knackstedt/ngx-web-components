@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, SimpleChanges, ViewChild, ViewEncapsulation, EventEmitter, Output } from '@angular/core';
-import { ColumnDefinition, RowComponent, TabulatorFull as Tabulator } from 'tabulator-tables';
+import { ColumnDefinition, Options, RowComponent, TabulatorFull as Tabulator } from 'tabulator-tables';
 
 export type TabulatorEvent<T = any> = {
     event: any,
@@ -55,6 +55,8 @@ export class TabulatorComponent<T = any> {
 
     @Input() key: string;
 
+    @Input() options: Options = {};
+
     table: Tabulator;
 
     @Output() cellClick = new EventEmitter();
@@ -75,7 +77,8 @@ export class TabulatorComponent<T = any> {
             columns: this._columns,
             layout: 'fitDataFill',
             height: "100%",
-            maxHeight: window.innerHeight
+            maxHeight: window.innerHeight,
+            ...this.options
         });
 
         table.on("rowClick", (e, row) => this.rowClick.next({ event: e, row, data: row.getData() }));
@@ -86,4 +89,5 @@ export class TabulatorComponent<T = any> {
     ngOnChanges(changes: SimpleChanges): void {
 
     }
+
 }
