@@ -2,7 +2,6 @@
     [currentTab]="currentTab"
     [(showHiddenFiles)]="showHiddenFiles"
     [(showSidebar)]="showSidebar"
-    [(sortOrder)]="sortOrder"
     [config]="config"
     [showBareMinimum]="width < 500"
     (onBreadcrumbClick)="onBreadcrumbClick($event)"
@@ -15,7 +14,6 @@
             [currentTab]="currentTab"
             [(showHiddenFiles)]="showHiddenFiles"
             [(showSidebar)]="showSidebar"
-            [(sortOrder)]="sortOrder"
             [config]="config"
             [drawerMode]="true"
             (onBreadcrumbClick)="onBreadcrumbClick($event)"
@@ -72,16 +70,17 @@
 
                             <ng-template matTabContent>
                                 <app-file-grid
-                                    [(path)]="tab.path"
-                                    (pathChange)="onTabPathChange(tab)"
-                                    [(selection)]="tab.selection"
-                                    (fileOpen)="onFileOpen($event)"
-                                    (loadFiles)="onTabLoadFiles(tab, $event)"
                                     [viewMode]="tab.viewMode"
                                     [config]="config"
                                     [gridSize]="gridSize"
+                                    [sortOrder]="tab.sortOrder"
+                                    [(selection)]="tab.selection"
+                                    [(path)]="tab.path"
+                                    (pathChange)="onTabPathChange(tab)"
                                     [(value)]="gridValues[i]"
                                     (valueChange)="onGridValueChange()"
+                                    (fileOpen)="onFileOpen($event)"
+                                    (loadFiles)="onTabLoadFiles(tab, $event)"
                                 />
                             </ng-template>
                         </mat-tab>

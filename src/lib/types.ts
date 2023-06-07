@@ -9,3 +9,6 @@ export type NgxWebComponentsConfig = Partial<{
      */
     assetPath: string
 }>;
+
+
+export type FileSorting = "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type";

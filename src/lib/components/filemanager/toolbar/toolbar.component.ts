@@ -1,12 +1,14 @@
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+
 import { NgxAppMenuDirective, NgxContextMenuDirective, ContextMenuItem } from '@dotglitch/ngx-ctx-menu';
 
 import { GtkIconButtonComponent } from './icon-button/icon-button.component';
 import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { FileSorting } from '../../../types';
 
 @Component({
     selector: 'app-toolbar',
@@ -29,9 +31,6 @@ export class ToolbarComponent {
 
     @Input() config: NgxFileManagerConfiguration;
 
-
-    @Input() sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type";
-    @Output() sortOrderChange = new EventEmitter<"a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type">();
 
     @Output() onBreadcrumbClick = new EventEmitter();
 
@@ -93,22 +92,42 @@ export class ToolbarComponent {
             separator: true
         },
         {
-            label: "Open VS Code here",
-            action: (folder) => {
-                //
-            }
+            label: "A-Z",
+            action: () => this.setSorter('a-z')
         },
+        {
+            label: "Z-A",
+            action: () => this.setSorter('z-a')
+        },
+        {
+            label: "Last Modified",
+            action: () => this.setSorter('lastmod')
+        },
+        {
+            label: "First Modified",
+            action: () => this.setSorter('firstmod')
+        },
+        {
+            label: "Size",
+            action: () => this.setSorter('size')
+        },
+        {
+            label: "Type",
+            action: () => this.setSorter('type')
+        },
+        "separator",
+        {
+            label: "Refresh",
+            action: () => this.filemanager.currentFileGrid.loadFolder()
+        }
     ];
-
-    debug(...args) {
-        console.log(args)
-    }
 
     historyBack(tab: FileViewTab) {
         console.log("history ->", tab)
         tab.historyIndex--;
         tab.path = tab.history[tab.historyIndex - 1];
     }
+
     historyForward(tab: FileViewTab) {
         console.log("history <-", tab)
         tab.historyIndex++;
@@ -120,5 +139,10 @@ export class ToolbarComponent {
             this.filemanager.drawer.close();
         else
             this.filemanager.drawer.open();
+    }
+
+    setSorter(mode: FileSorting) {
+        this.filemanager.currentTab.sortOrder = mode;
+        this.filemanager.refreshSorting();
     }
 }

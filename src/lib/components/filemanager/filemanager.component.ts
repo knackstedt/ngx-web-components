@@ -10,7 +10,7 @@ import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { TreeViewComponent } from './tree-view/tree-view.component';
 import { Fetch } from '../../util';
-import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../types';
+import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../types';
 import { IconResolver } from './icon-resolver';
 
 // TODO:
@@ -63,7 +63,8 @@ export type FileViewTab = {
     viewMode: "grid" | "list",
     historyIndex: number,
     history: string[],
-    sidebarItems: FSDescriptor[]
+    sidebarItems: FSDescriptor[],
+    sortOrder: FileSorting
 }
 
 export type NgxFileManagerConfiguration = Partial<{
@@ -178,11 +179,10 @@ export class FilemanagerComponent implements OnInit {
     sidebarOverlay = false;
     width = 0;
 
-    sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type" = "a-z";
-
     isHomeAncestor = false;
 
     currentTab: FileViewTab = {} as any;
+    get currentFileGrid() { return this.fileGrids[this.tabIndex] }
     tabIndex = 0;
     tabs: FileViewTab[] = [];
 
@@ -225,7 +225,8 @@ export class FilemanagerComponent implements OnInit {
             viewMode: this.mode || 'grid',
             historyIndex: 0,
             history: [],
-            sidebarItems: []
+            sidebarItems: [],
+            sortOrder: 'a-z'
         });
         this.tabIndex = this.tabs.length;
     }
@@ -338,5 +339,10 @@ export class FilemanagerComponent implements OnInit {
 
     clearSelection() {
         this.fileGrids.forEach(g => g.clearSelection());
+    }
+
+    // Tell the child grid to refresh it's sorting
+    refreshSorting() {
+        this.fileGrids.forEach(g => g.sort());
     }
 }

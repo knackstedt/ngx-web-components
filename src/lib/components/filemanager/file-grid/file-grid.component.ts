@@ -4,7 +4,9 @@ import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox
 import { MatInputModule } from '@angular/material/input';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatDialog } from '@angular/material/dialog';
 
+import { CellComponent, EmptyCallback } from 'tabulator-tables';
 import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
@@ -12,11 +14,10 @@ import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor
 import { Fetch } from '../../../services/fetch.service';
 import { DialogService } from '../../../services/dialog.service';
 import { KeyboardService } from '../../../services/keyboard.service';
-import { NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
+import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
 import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
-import { MatDialog } from '@angular/material/dialog';
-import { CellComponent, EmptyCallback } from 'tabulator-tables';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const itemWidth = (80 + 20);
 
@@ -32,6 +33,7 @@ const itemWidth = (80 + 20);
         NgScrollbarModule,
         MatInputModule,
         MatCheckboxModule,
+        MatProgressBarModule,
         TabulatorComponent,
         NgxContextMenuDirective,
         ScrollingModule
@@ -91,7 +93,7 @@ export class FileGridComponent implements OnInit {
         "size": (a: FileDescriptor, b: FileDescriptor) => b.stats.size - a.stats.size,
         "type": (a: FileDescriptor, b: FileDescriptor) => a.path.split('.').splice(-1, 1)[0] > b.path.split('.').splice(-1, 1)[0] ? 1 : -1
     };
-    sortOrder: "a-z" | "z-a" | "lastmod" | "firstmod" | "size" | "type" = "a-z";
+    @Input() sortOrder: FileSorting = "a-z";
 
     itemsPerRow = 6;
 
@@ -101,6 +103,8 @@ export class FileGridComponent implements OnInit {
     userIsDraggingFile = false;
     draggingOver = false;
 
+    showLoader = false;
+    hideLoader = false;
 
     readonly columns = [
         { id: "name", label: "Name" },
@@ -171,7 +175,6 @@ export class FileGridComponent implements OnInit {
         //     }
         // }
     ];
-
 
     fileContextMenu: ContextMenuItem<FSDescriptor>[] = [
         {
@@ -426,6 +429,8 @@ export class FileGridComponent implements OnInit {
     }
 
     loadFolder() {
+        this.showLoader = true;
+        this.hideLoader = false;
         this.fetch.post(this.config.apiSettings.listEntriesUrl, { path: this.path, showHidden: this.showHiddenFiles })
             .then((data: any) => {
                 const files: FileDescriptor[] = data.files || [];
@@ -441,12 +446,18 @@ export class FileGridComponent implements OnInit {
                     }
                 });
 
-                console.log(descriptors)
                 this.directoryContents = descriptors;
 
                 this._sortFilter();
                 this.resize();
                 this.loadFiles.next(descriptors);
+
+            })
+            .finally(() => {
+                this.hideLoader = true;
+                setTimeout(() => {
+                    this.showLoader = false;
+                }, 200);
             })
     }
 
@@ -535,7 +546,7 @@ export class FileGridComponent implements OnInit {
         this.tabulator.table.getRows().forEach(r => r.getElement().classList.remove('selected'));
     }
 
-    _sortFilter(): FileDescriptor[] {
+    private _sortFilter(): FileDescriptor[] {
         return this.directoryContents = this.directoryContents?.filter(d => d.kind == 'directory')
             .concat(this.directoryContents?.filter(d => d.kind == 'file')
                 .sort(this.sorters[this.sortOrder])
@@ -659,5 +670,9 @@ export class FileGridComponent implements OnInit {
         }
 
         this.valueChange.next(this.value);
+    }
+
+    sort() {
+        this._sortFilter();
     }
 }

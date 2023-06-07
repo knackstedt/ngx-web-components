@@ -26,7 +26,7 @@
         *ngIf="currentTab"
         style="flex: 1"
         [crumbs]="currentTab.breadcrumb"
-        (crumbClick)="onBreadcrumbClick.next($event); debug($event)"
+        (crumbClick)="onBreadcrumbClick.next($event)"
         [config]="config"
     />
 
@@ -56,7 +56,7 @@
     />
 
     <gtk-icon-button
-        fontIcon="expand_more"
+        fontIcon="sort"
         [ngx-app-menu]="sortOptions"
         [ngx-app-menu-config]="{position: 'bottom'}"
     />
