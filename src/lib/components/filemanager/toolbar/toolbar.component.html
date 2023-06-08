@@ -21,20 +21,19 @@
     </div>
 
     <div style="width: 40px" *ngIf="!drawerMode"></div>
-
-    <gtk-breadcrumb
-        *ngIf="currentTab"
-        style="flex: 1"
-        [crumbs]="currentTab.breadcrumb"
-        (crumbClick)="onBreadcrumbClick.next($event)"
-        [config]="config"
-    />
-
-
 </ng-container>
 
+
+<gtk-breadcrumb
+    *ngIf="currentTab"
+    style="flex: 1"
+    [crumbs]="currentTab.breadcrumb"
+    (crumbClick)="onBreadcrumbClick.next($event)"
+    [config]="config"
+/>
+
 <ng-container *ngIf="!drawerMode">
-    <div style="flex: 1"></div>
+    <!-- <div style="flex: 1"></div> -->
 
     <gtk-icon-button
         fontIcon="more_vert"

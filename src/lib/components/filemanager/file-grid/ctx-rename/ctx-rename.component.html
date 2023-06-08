@@ -1,0 +1,9 @@
+<div>
+    <mat-form-field style="width: -webkit-fill-available;">
+        <!-- <mat-label>Name</mat-label> -->
+        <input #input matInput type="text" [value]="file.name" (keydown)="file.name = input.value"/>
+    </mat-form-field>
+</div>
+<div style="display: flex; justify-content: end; margin-top: 12px">
+    <button mat-flat-button>Save</button>
+</div>

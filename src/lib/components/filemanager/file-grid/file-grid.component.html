@@ -1,4 +1,6 @@
-<mat-progress-bar *ngIf="showLoader" [class.hide]="hideLoader" mode="query"/>
+<ng-container *ngIf="showLoader">
+    <mat-progress-bar [class.hide]="hideLoader" mode="query"/>
+</ng-container>
 
 <div
     style="display: contents"
@@ -133,3 +135,10 @@
 <div class="select-hint" *ngIf="selectionText">
     {{selectionText}}
 </div>
+
+
+
+<ng-template #renameTemplate let-data="data">
+    <app-ctx-rename [file]="data.data" [dialog]="data.dialog" />
+</ng-template>
+

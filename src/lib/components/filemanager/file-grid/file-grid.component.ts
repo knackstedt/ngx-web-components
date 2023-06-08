@@ -1,10 +1,10 @@
-import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject, TemplateRef } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { DatePipe, NgForOf, NgIf } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import { CellComponent, EmptyCallback } from 'tabulator-tables';
 import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
@@ -18,6 +18,7 @@ import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '
 import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CtxRenameComponent } from './ctx-rename/ctx-rename.component';
 
 const itemWidth = (80 + 20);
 
@@ -36,13 +37,17 @@ const itemWidth = (80 + 20);
         MatProgressBarModule,
         TabulatorComponent,
         NgxContextMenuDirective,
-        ScrollingModule
+        ScrollingModule,
+        CtxRenameComponent
     ],
     standalone: true
 })
 export class FileGridComponent implements OnInit {
     @ViewChild("fileViewport") filesRef: ElementRef;
     @ViewChild(TabulatorComponent) tabulator: TabulatorComponent;
+
+    @ViewChild('renameTemplate', { read: TemplateRef }) renameTemplate: TemplateRef<any>;
+
 
     private _path: string;
     @Input() set path(value: string) {
@@ -176,181 +181,7 @@ export class FileGridComponent implements OnInit {
         // }
     ];
 
-    fileContextMenu: ContextMenuItem<FSDescriptor>[] = [
-        {
-            label: "Download",
-            icon: "download",
-            action: (data) => {
-                let target = `${window.origin}/${this.config.apiSettings.downloadEntryUrl}`;
-
-                target += `${target.includes('?') ? '&' : '?'}path=${data.path + data.name}&ngsw-bypass=true`;
-                // window.open(target);
-                var link = document.createElement("a");
-                link.download = data.name;
-                link.href = target;
-                link.click();
-                link.remove();
-                this.fileManager.fileDownload.next(data);
-            }
-        },
-        // {
-        //     label: "Open",
-        //     icon: "open_in_new",
-        //     shortcutLabel: "Shift+Ctrl+N",
-        //     action: (data) => {
-        //         console.log("New folder goodness");
-        //         console.log(data);
-        //     }
-        // },
-        {
-            label: "Open in new Tab",
-            icon: "open_in_new",
-            isVisible: (data) => data.kind == "directory",
-            action: (data) => {
-                this.fileManager.initTab(data.path + data.name);
-            }
-        },
-        // {
-        //     label: "Open with Application...",
-        //     isVisible: (data) => data.kind == "file",
-        //     shortcutLabel: "Ctrl+D",
-        //     action: (evt) => {
-
-        //     },
-        // },
-        "separator",
-        // {
-        //     label: "Cut",
-        //     icon: "content_cut",
-        //     isDisabled: data => true,
-        //     action: (evt) => {
-        //     },
-        // },
-        // {
-        //     label: "Copy",
-        //     icon: "file_copy",
-        //     isDisabled: data => true,
-        //     action: (evt) => {
-        //     },
-        // },
-        // {
-        //     label: "Move To...",
-        //     icon: "drive_file_move",
-        //     shortcutLabel: "Ctrl+A",
-        //     action: (evt) => {
-
-        //     },
-        // },
-        // {
-        //     label: "Copy To...",
-        //     icon: "folder_copy",
-        //     shortcutLabel: "Ctrl+A",
-        //     action: (evt) => {
-
-        //     },
-        // },
-        {
-            label: "Delete",
-            icon: "delete",
-            shortcutLabel: "Ctrl+A",
-            isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
-            action: (evt) => {
-                this.fetch.post(`/api/filesystem/delete`, { files: [evt.path + evt.name] })
-                    .then(() => this.loadFolder())
-            },
-        },
-        // {
-        //     label: "Shred file",
-        //     icon: "delete_forever",
-        //     isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
-        //     action: (evt) => {
-        //         this.fetch.post(`/api/filesystem/delete?wipe=true`, { files: [evt.path + evt.name]})
-        //             .then(() => this.loadFolder())
-        //     },
-        // },
-        // {
-        //     label: "Rename",
-        //     icon: "drive_file_rename_outline",
-        //     isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
-        //     shortcutLabel: "Ctrl+A",
-        //     action: (evt) => {
-
-        //     },
-        // },
-
-        // Extract Here
-        // Extract To...
-        // {
-        //     label: "Extract Here",
-        //     icon: "folder_zip",
-        //     shortcutLabel: "Ctrl+A",
-        //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
-        //     action: (evt) => {
-        //         // TODO
-        //     },
-        // },
-        // {
-        //     label: "Extract to...",
-        //     icon: "folder_zip",
-        //     shortcutLabel: "Ctrl+A",
-        //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
-        //     action: (evt) => {
-        //         // TODO
-        //     },
-        // },
-        // {
-        //     label: "Compress...",
-        //     icon: "folder_zip",
-        //     shortcutLabel: "Ctrl+A",
-        //     isDisabled: (data) => data.kind == "file",
-        //     action: (evt) => {
-        //         // TODO
-        //     },
-        // },
-        {
-            label: "Checksum",
-            icon: "manage_search",
-            isDisabled: (data) => data.kind != "file",
-            children: [
-                {
-                    label: "MD5",
-                    action: (evt) => this.performChecksum(evt.path + evt.name, "md5"),
-                },
-                {
-                    label: "SHA1",
-                    action: (evt) => this.performChecksum(evt.path + evt.name, "sha1"),
-                },
-                {
-                    label: "SHA256",
-                    action: (evt) => this.performChecksum(evt.path + evt.name, "sha256"),
-                },
-                {
-                    label: "SHA512",
-                    action: (evt) => this.performChecksum(evt.path + evt.name, "sha512"),
-                },
-            ],
-            isVisible: (data) => {
-                return false;
-                return !this.isArchive || data.kind == "file";
-            },
-        },
-        // {
-        //     label: "Star",
-        //     icon: "star",
-        //     shortcutLabel: "Ctrl+A",
-        //     action: (evt) => {
-
-        //     },
-        // },
-        // "separator",
-        // {
-        //     label: "P_r_operties",
-        //     icon: "find_in_page",
-        //     action: (evt) => {
-
-        //     },
-        // }
-    ];
+    fileContextMenu: ContextMenuItem<FSDescriptor>[] = [];
 
     performChecksum(path, digest) {
         // this.windowManager.openWindow({
@@ -426,6 +257,185 @@ export class FileGridComponent implements OnInit {
 
     async ngOnInit() {
         this.loadFolder();
+    }
+
+    ngAfterViewInit() {
+        this.fileContextMenu = [
+            {
+                label: "Download",
+                icon: "download",
+                action: (file) => {
+                    let target = `${window.origin}${this.config.apiSettings.downloadEntryUrl}`;
+                    let path = file.path + file.name;
+
+                    if (file.kind == "directory" && !path.endsWith('/'))
+                        path += "/";
+
+                    target += `${target.includes('?') ? '&' : '?'}path=${path}&ngsw-bypass=true`;
+                    console.log(target);
+                    // window.open(target);
+                    var link = document.createElement("a");
+                    link.download = file.name;
+                    link.href = target;
+                    link.click();
+                    link.remove();
+                    this.fileManager.fileDownload.next(file);
+                }
+            },
+            {
+                label: "Open in new Tab",
+                icon: "open_in_new",
+                isVisible: (data) => data.kind == "directory",
+                action: (data) => {
+                    this.fileManager.initTab(data.path + data.name);
+                }
+            },
+            // {
+            //     label: "Open with Application...",
+            //     isVisible: (data) => data.kind == "file",
+            //     shortcutLabel: "Ctrl+D",
+            //     action: (evt) => {
+
+            //     },
+            // },
+            "separator",
+            // {
+            //     label: "Cut",
+            //     icon: "content_cut",
+            //     isDisabled: data => true,
+            //     action: (evt) => {
+            //     },
+            // },
+            {
+                label: "Copy",
+                icon: "file_copy",
+                isDisabled: data => true,
+                childrenResolver: () => new Promise(r => setTimeout(r, 500000))
+            },
+            // {
+            //     label: "Move To...",
+            //     icon: "drive_file_move",
+            //     shortcutLabel: "Ctrl+A",
+            //     action: (evt) => {
+
+            //     },
+            // },
+            // {
+            //     label: "Copy To...",
+            //     icon: "folder_copy",
+            //     shortcutLabel: "Ctrl+A",
+            //     action: (evt) => {
+
+            //     },
+            // },
+            {
+                label: "Delete",
+                icon: "delete",
+                // shortcutLabel: "Del",
+                isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
+                action: (evt) => {
+                    const path = evt.path + evt.name;
+                    const dUrl = this.config.apiSettings.deleteEntryUrl;
+                    const url = dUrl + (dUrl.includes('?') ? '&' : '?') + 'path=' + path;
+
+                    this.fetch.delete(url)
+                        .then(() => this.loadFolder())
+                },
+            },
+            // {
+            //     label: "Shred file",
+            //     icon: "delete_forever",
+            //     isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
+            //     action: (evt) => {
+            //         this.fetch.post(`/api/filesystem/delete?wipe=true`, { files: [evt.path + evt.name]})
+            //             .then(() => this.loadFolder())
+            //     },
+            // },
+            {
+                label: "Rename",
+                icon: "drive_file_rename_outline",
+                isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
+                // shortcutLabel: "F2",
+                // action: (evt) => {
+
+                // },
+                // childTemplate: RenameComponent as any
+                childTemplate: this.renameTemplate,
+            },
+
+            // Extract Here
+            // Extract To...
+            // {
+            //     label: "Extract Here",
+            //     icon: "folder_zip",
+            //     shortcutLabel: "Ctrl+A",
+            //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
+            //     action: (evt) => {
+            //         // TODO
+            //     },
+            // },
+            // {
+            //     label: "Extract to...",
+            //     icon: "folder_zip",
+            //     shortcutLabel: "Ctrl+A",
+            //     isDisabled: (data) => !(data.kind == "file" && data.ext != ".zip" && isArchive(data)),
+            //     action: (evt) => {
+            //         // TODO
+            //     },
+            // },
+            // {
+            //     label: "Compress...",
+            //     icon: "folder_zip",
+            //     shortcutLabel: "Ctrl+A",
+            //     isDisabled: (data) => data.kind == "file",
+            //     action: (evt) => {
+            //         // TODO
+            //     },
+            // },
+            {
+                label: "Checksum",
+                icon: "manage_search",
+                isDisabled: (data) => data.kind != "file",
+                children: [
+                    {
+                        label: "MD5",
+                        action: (evt) => this.performChecksum(evt.path + evt.name, "md5"),
+                    },
+                    {
+                        label: "SHA1",
+                        action: (evt) => this.performChecksum(evt.path + evt.name, "sha1"),
+                    },
+                    {
+                        label: "SHA256",
+                        action: (evt) => this.performChecksum(evt.path + evt.name, "sha256"),
+                    },
+                    {
+                        label: "SHA512",
+                        action: (evt) => this.performChecksum(evt.path + evt.name, "sha512"),
+                    },
+                ],
+                isVisible: (data) => {
+                    return false;
+                    return !this.isArchive || data.kind == "file";
+                },
+            },
+            // {
+            //     label: "Star",
+            //     icon: "star",
+            //     shortcutLabel: "Ctrl+A",
+            //     action: (evt) => {
+
+            //     },
+            // },
+            // "separator",
+            // {
+            //     label: "P_r_operties",
+            //     icon: "find_in_page",
+            //     action: (evt) => {
+
+            //     },
+            // }
+        ];
     }
 
     loadFolder() {
@@ -676,3 +686,8 @@ export class FileGridComponent implements OnInit {
         this._sortFilter();
     }
 }
+
+
+
+
+

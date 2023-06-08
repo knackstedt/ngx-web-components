@@ -87,7 +87,8 @@ export type NgxFileManagerConfiguration = Partial<{
     apiSettings: {
         listEntriesUrl: string,
         downloadEntryUrl: string,
-        uploadEntryUrl: string
+        uploadEntryUrl: string,
+        deleteEntryUrl: string
     },
 
     /**
@@ -142,8 +143,9 @@ export class FilemanagerComponent implements OnInit {
     @Input() config: NgxFileManagerConfiguration = {
         apiSettings: {
             listEntriesUrl: `/api/filesystem/`,
-            uploadEntryUrl: ``,
-            downloadEntryUrl: ``
+            uploadEntryUrl: `/api/filesystem/`,
+            downloadEntryUrl: `/api/filesystem/`,
+            deleteEntryUrl: `/api/filesystem/`
         }
     };
 
