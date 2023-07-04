@@ -21,7 +21,7 @@
 
         .mdc-tab {
             height: var(--tab-height, 0);
-            background-color: #303030;
+            background-color: var(--filemanager-tab-background-color ,#303030);
         }
     }
     .mat-mdc-tab .mdc-tab__content {

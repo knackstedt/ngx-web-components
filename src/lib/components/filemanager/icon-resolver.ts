@@ -6,6 +6,8 @@ import * as MIT from '../../../assets/mat-icons.json';
 //     console.log(k, MIT[k])
 // })
 
+const symIcon = Symbol('icon');
+
 const folderNames = MIT['default'].folderNames;
 const fileNames = MIT['default'].fileNames;
 const fileExtensions = MIT['default'].fileExtensions;
@@ -167,11 +169,12 @@ export class IconResolver {
 
     // TODO: resolve dynamic thumbnails for media documents
     resolveIcon(file: FSDescriptor): { path: string, needsBackdrop: boolean; } {
+        if (file[symIcon]) return file[symIcon];
 
         if (file.kind == "directory") {
-            return this.resolveDirIcon(file);
+            return file[symIcon] = this.resolveDirIcon(file);
         }
 
-        return this.resolveFileIcon(file);
+        return file[symIcon] = this.resolveFileIcon(file);
     };
 }
