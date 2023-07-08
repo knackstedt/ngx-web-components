@@ -44,6 +44,9 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
     }
     get language() { return this._language }
 
+    @Input() installationLocation = "/lib/monaco/vs/";
+
+
     @Input() tabSize = 2;
     @Input() readOnly = false;
     @Input() theme = "vs-dark";
@@ -164,20 +167,22 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
         if (VscodeComponent.isMonacoInstalled) return;
 
         // Monaco has a UMD loader that requires this
-        // @ts-ignore
-        window.require = { paths: { 'vs': '/lib/monaco/vs' } };
+        // Merge with any pre-existing global require objects.
+        if (!window['require']) window['require'] = {} as any;
+        if (!window['require']['paths']) window['require']['paths'] = {};
+
+        window['require']['paths'].vs = this.installationLocation;
 
         const monacoFiles = [
-            '/lib/monaco/vs/loader.js',
-            '/lib/monaco/vs/editor/editor.main.nls.js',
-            '/lib/monaco/vs/editor/editor.main.js',
+            'loader.js',
+            'editor/editor.main.nls.js',
+            'editor/editor.main.js',
         ];
-
 
         for (let i = 0; i < monacoFiles.length; i++) {
             const script = document.createElement("script");
             script.setAttribute("defer", "");
-            script.setAttribute("src", monacoFiles[i]);
+            script.setAttribute("src", this.installationLocation + monacoFiles[i]);
             document.body.append(script);
         }
         VscodeComponent.isMonacoInstalled = true;
