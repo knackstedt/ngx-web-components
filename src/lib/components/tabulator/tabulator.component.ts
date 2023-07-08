@@ -84,6 +84,10 @@ export class TabulatorComponent<T = any> {
         table.on("rowClick", (e, row) => this.rowClick.next({ event: e, row, data: row.getData() }));
         table.on("rowContext", (e, row) => this.rowContext.next({ event: e, row, data: row.getData() }));
         table.on("rowDblClick", (e, row) => this.rowDblClick.next({ event: e, row, data: row.getData() }));
+
+        table.on("renderComplete", () => {
+            table.redraw()
+        })
     }
 
     ngOnChanges(changes: SimpleChanges): void {

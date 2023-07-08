@@ -306,12 +306,12 @@ export class FileGridComponent implements OnInit {
             //     action: (evt) => {
             //     },
             // },
-            {
-                label: "Copy",
-                icon: "file_copy",
-                isDisabled: data => true,
-                childrenResolver: () => new Promise(r => setTimeout(r, 500000))
-            },
+            // {
+            //     label: "Copy",
+            //     icon: "file_copy",
+            //     isDisabled: data => true,
+            //     childrenResolver: () => new Promise(r => setTimeout(r, 500000))
+            // },
             // {
             //     label: "Move To...",
             //     icon: "drive_file_move",

@@ -78,57 +78,6 @@
             (rowDblClick)="onItemClick($event.data)"
             (rowContext)="onRowCtx($event)"
         />
-
-        <!-- <div style="display: flex; height: 32px; align-items: center">
-            <div style="flex: 1; padding-left: 8px">Name</div>
-            <div style="width: 100px">Size</div>
-            <div style="width: 120px">Created</div>
-            <div style="width: 120px">Modified</div>
-        </div>
-        <ng-scrollbar
-            class="list"
-            style="height: calc(100% - 32px); width: 100%"
-            track="vertical"
-            pointerEventsMethod="scrollbar"
-            [ngx-ctx-menu]="folderContextMenu"
-        >
-            <div class="resize-observer" #fileViewport></div>
-            <cdk-virtual-scroll-viewport
-                itemSize="42"
-                scrollViewport
-                (click)="selection = []; selectionText = ''"
-            >
-                <div
-                    *cdkVirtualFor="let item of directoryContents; let i = index"
-                    class="row"
-                    [class.odd]="i%2==1"
-                    [class.selected]="selection.includes(item)"
-                    [ngx-ctx-menu]="fileContextMenu"
-                    [ngx-ctx-menu-context]="item"
-
-                    (click)="onSelect(item, $event)"
-                    (dblclick)="onItemClick(item)"
-                    (dragstart)="onDragStart($event, item)"
-                >
-                    <div style="flex: 1; display: flex; align-items: center;">
-                        <mat-checkbox
-                            #checkbox
-                            *ngIf="config.mode == 'focusFiles' && item.kind == 'file'"
-                            [checked]="item['_value']"
-                            (change)="onToggle(item, $event)"
-                        />
-
-                        <img style="height: 24px; margin-right: 6px" [src]="item['_icon'].path"/>
-                        <p>{{item.name}}</p>
-                    </div>
-
-                    <div style="width: 100px">{{item.stats?.size ? bytesToString(item.stats.size) : ''}}</div>
-
-                    <div style="width: 120px">{{item._ctime | date}}</div>
-                    <div style="width: 120px">{{item._mtime | date}}</div>
-                </div>
-            </cdk-virtual-scroll-viewport>
-        </ng-scrollbar> -->
     </div>
 </div>
 

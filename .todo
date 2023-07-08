@@ -1,14 +1,19 @@
-Create 'alias' property to alias ids in lookup.
+### General
+Create 'alias' property to alias ids in data lookups.
+    Check for colliding ids / aliases
 
-Check for colliding ids / aliases
-
-
+### Filemanager
 Sort folders before files (list view)
 Forwards backwards buttons disabled color isn't very visible
 History has duplicate entries
 
 toolbar button items are flaky at best
-add initial path for file storage
-add "copy link" for logged in users
+add "copy link" for logged in users..?
 
 Scale icons down with config
+Cleanup and unify file selection logic
+
+
+
+clicking text fucks up ctrl click and shift click
+sorting in grid mode does nothing?
