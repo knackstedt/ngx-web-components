@@ -450,9 +450,9 @@ export class FileGridComponent implements OnInit {
                 descriptors.forEach(f => {
                     f['_icon'] = this.iconResolver.resolveIcon(f);
                     if (f.kind == "file") {
-                        f['_ctime'] = new Date(f.stats.ctimeMs).toLocaleString();
-                        f['_mtime'] = new Date(f.stats.mtimeMs).toLocaleString();
-                        f['_size'] = this.bytesToString(f.stats.size);
+                        f['_ctime'] = new Date(f.stats?.ctimeMs)?.toLocaleString();
+                        f['_mtime'] = new Date(f.stats?.mtimeMs)?.toLocaleString();
+                        f['_size'] = this.bytesToString(f.stats?.size);
                     }
                 });
 
@@ -463,6 +463,7 @@ export class FileGridComponent implements OnInit {
                 this.loadFiles.next(descriptors);
 
             })
+            .catch(e => console.error(e))
             .finally(() => {
                 this.hideLoader = true;
                 setTimeout(() => {

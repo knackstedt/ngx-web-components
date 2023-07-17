@@ -93,7 +93,14 @@ export class IconResolver {
     }
 
     private resolveDirIcon (file: FSDescriptor) {
-        const dirnameMatch = this.getBestMatch(folderIconNameList, file.name);
+        if (!file.name && !file.path)  {
+            return {
+                path: `${this.path}/material/folder.svg`,
+                needsBackdrop: false
+            }
+        }
+
+        const dirnameMatch = this.getBestMatch(folderIconNameList, file.name || file.path);
         // VS Code Material Icon Theme pack
 
         // TODO: default to a clear icon that doesn't have decoration
