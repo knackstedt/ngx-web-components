@@ -60,8 +60,9 @@
     <!-- List mode -->
     <div
         *ngIf="viewMode == 'list'"
-        [class.showDropArea]="draggingOver"
         style="width: 100%; height: 100%"
+        [class.showDropArea]="draggingOver"
+        [ngx-ctx-menu]="folderContextMenu"
     >
         <app-tabulator
             [dataSource]="directoryContents"

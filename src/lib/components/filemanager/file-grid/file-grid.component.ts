@@ -137,22 +137,51 @@ export class FileGridComponent implements OnInit {
 
     folderContextMenu: ContextMenuItem<FSDescriptor>[] = [
         {
-            label: "New _F_older",
-            shortcutLabel: "Shift+Ctrl+N",
+            label: "New Folder",
+            // shortcutLabel: "Shift+Ctrl+N",
             icon: "create_new_folder",
             action: (data) => {
                 console.log("New folder goodness");
                 console.log(data);
             }
         },
-        // {
-        //     label: "Add to _B_ookmarks",
-        //     shortcutLabel: "Ctrl+D",
-        //     icon: "bookmark",
-        //     action: (evt) => {
+        {
+            label: "Upload file",
+            // shortcutLabel: "Ctrl+D",
+            icon: "file_upload",
+            action: (evt) => {
+                const inEl = document.createElement('input');
+                inEl.setAttribute('type', 'file');
+                inEl.setAttribute('multiple', '');
+                inEl.click();
+                // let photo = [0];
+                let formData = new FormData();
 
-        //     }
-        // },
+                inEl.addEventListener('change', () => {
+                    Object.keys(inEl.files).forEach(k => {
+                        const file: {
+                            lastModified: number,
+                            lastModifiedDate: Date,
+                            name: string,
+                            size: number,
+                            type: string
+                        } = inEl.files[k];
+
+                        const name = file.name;
+                        formData.append(name, file as any);
+                    });
+                    formData.append("data", JSON.stringify({
+                        path: this._path
+                    }));
+
+                    // window.fetch(this.config.apiSettings.uploadEntryUrl, { method: 'POST', body: formData });
+                    this.fetch.post(this.config.apiSettings.uploadEntryUrl, formData).then(res => {
+                        inEl.remove();
+                        this.loadFolder();
+                    });
+                })
+            }
+        },
         "separator",
         // {
         //     isDisabled: (data) => true,
@@ -554,7 +583,7 @@ export class FileGridComponent implements OnInit {
         this.value = [];
         this.valueChange.next(this.value);
 
-        this.tabulator.table.getRows().forEach(r => r.getElement().classList.remove('selected'));
+        this.tabulator?.table?.getRows().forEach(r => r.getElement().classList.remove('selected'));
     }
 
     private _sortFilter(): FileDescriptor[] {
