@@ -1,0 +1,7 @@
+<mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput type="text" [(ngModel)]="name">
+</mat-form-field>
+
+<button mat-flat-icon (click)="onSave()"><mat-icon>check</mat-icon>Ok</button>
+<button mat-flat-icon (click)="dialog.close()"><mat-icon>cancel</mat-icon>Cancel</button>
