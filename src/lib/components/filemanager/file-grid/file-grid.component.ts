@@ -19,6 +19,7 @@ import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CtxRenameComponent } from './ctx-rename/ctx-rename.component';
+import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 
 const itemWidth = (80 + 20);
 
@@ -141,8 +142,9 @@ export class FileGridComponent implements OnInit {
             // shortcutLabel: "Shift+Ctrl+N",
             icon: "create_new_folder",
             action: (data) => {
-                console.log("New folder goodness");
-                console.log(data);
+                // console.log("New folder goodness");
+                // console.log(data);
+                this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", { inputs: { path: data.path, name: data.name || '', config: this.config } })
             }
         },
         {
@@ -174,8 +176,12 @@ export class FileGridComponent implements OnInit {
                         path: this._path
                     }));
 
+                    const url = this.config.apiSettings.uploadEntryUrlTemplate
+                              ? this.config.apiSettings.uploadEntryUrlTemplate(evt.path + evt.name)
+                              : this.config.apiSettings.uploadEntryUrl
+
                     // window.fetch(this.config.apiSettings.uploadEntryUrl, { method: 'POST', body: formData });
-                    this.fetch.post(this.config.apiSettings.uploadEntryUrl, formData).then(res => {
+                    this.fetch.post(url, formData).then(res => {
                         inEl.remove();
                         this.loadFolder();
                     });
@@ -226,12 +232,19 @@ export class FileGridComponent implements OnInit {
 
     constructor(
         @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
+        private readonly lazyLoader: NgxLazyLoaderService,
         private readonly fetch: Fetch,
         private readonly keyboard: KeyboardService,
         private readonly dialog: DialogService,
         private readonly matDialog: MatDialog,
         private readonly fileManager: FilemanagerComponent
     ) {
+        lazyLoader.registerComponent({
+            id: "folder-rename",
+            group: "@dotglitch/ngx-web-components",
+            load: () => import('../folder-rename/folder-rename.component')
+        })
+
         this.iconResolver = new IconResolver(libConfig.assetPath);
 
         // ctrl + a => select all
@@ -364,8 +377,10 @@ export class FileGridComponent implements OnInit {
                 isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
                 action: (evt) => {
                     const path = evt.path + evt.name;
-                    const dUrl = this.config.apiSettings.deleteEntryUrl;
-                    const url = dUrl + (dUrl.includes('?') ? '&' : '?') + 'path=' + path;
+
+                    const url = this.config.apiSettings.deleteEntryUrlTemplate
+                        ? this.config.apiSettings.deleteEntryUrlTemplate(path)
+                        : this.config.apiSettings.deleteEntryUrl
 
                     this.fetch.delete(url)
                         .then(() => this.loadFolder())
@@ -470,7 +485,12 @@ export class FileGridComponent implements OnInit {
     loadFolder() {
         this.showLoader = true;
         this.hideLoader = false;
-        this.fetch.post(this.config.apiSettings.listEntriesUrl, { path: this.path, showHidden: this.showHiddenFiles })
+
+        const url = this.config.apiSettings.listEntriesUrlTemplate
+            ? this.config.apiSettings.listEntriesUrlTemplate(this.path)
+            : this.config.apiSettings.listEntriesUrl
+
+        this.fetch.post(url, { path: this.path, showHidden: this.showHiddenFiles })
             .then((data: any) => {
                 const files: FileDescriptor[] = data.files || [];
                 const dirs: DirectoryDescriptor[] = data.dirs;
@@ -491,6 +511,12 @@ export class FileGridComponent implements OnInit {
                 this.resize();
                 this.loadFiles.next(descriptors);
 
+
+                setTimeout(() => this.resize(), 250);
+                setTimeout(() => this.resize(), 500);
+                setTimeout(() => this.resize(), 1000);
+                setTimeout(() => this.resize(), 2500);
+                setTimeout(() => this.resize(), 5000);
             })
             .catch(e => console.error(e))
             .finally(() => {
@@ -635,11 +661,15 @@ export class FileGridComponent implements OnInit {
         };
 
         const bounds = (this.filesRef.nativeElement as HTMLElement).getBoundingClientRect();
-        this.itemsPerRow = Math.floor(bounds.width / itemWidth);
-        if (this.itemsPerRow > 100)
-            this.itemsPerRow = 1;
 
-        this.flowRows();
+        const newColCount = Math.floor(bounds.width / itemWidth);
+        if (newColCount != this.itemsPerRow) {
+            this.itemsPerRow = Math.floor(bounds.width / itemWidth);
+            if (this.itemsPerRow > 100)
+                this.itemsPerRow = 1;
+
+            this.flowRows();
+        }
     }
 
     onDragStart(evt: DragEvent, item: FSDescriptor) {
@@ -677,7 +707,7 @@ export class FileGridComponent implements OnInit {
         return `
             <span style="display: flex; align-items: center">
                 <img style="height: 24px; margin-right: 6px" src="${item['_icon'].path}"/>
-                <p style="margin: 0">${item.name}</p>
+                <p style="margin: 0">${item['vanityName'] || item.name}</p>
             </span>
         `;
     }).bind(this)

@@ -50,7 +50,7 @@
                         (dragstart)="onDragStart($event, item)"
                     >
                         <img [src]="item['_icon'].path"/>
-                        <p>{{item.name}}</p>
+                        <p>{{item['vanityName'] || item.name}}</p>
                     </div>
                 </div>
             </div>

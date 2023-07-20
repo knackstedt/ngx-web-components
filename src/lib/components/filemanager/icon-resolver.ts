@@ -100,7 +100,7 @@ export class IconResolver {
             }
         }
 
-        const dirnameMatch = this.getBestMatch(folderIconNameList, file.name || file.path);
+        const dirnameMatch = this.getBestMatch(folderIconNameList, file['vanityName'] || file.name || file.path);
         // VS Code Material Icon Theme pack
 
         // TODO: default to a clear icon that doesn't have decoration
@@ -113,7 +113,7 @@ export class IconResolver {
     private resolveFileIcon (file: FSDescriptor) {
         // Folders always use the material-icon-theme
 
-        const baseExt = builtinIcons.find(ext => file.name.endsWith('.' + ext));
+        const baseExt = builtinIcons.find(ext => (file['vanityName'] || file.name).endsWith('.' + ext));
         if (baseExt) {
             return {
                 path: `${this.path}/pop/exts/${baseExt}.svg`,
@@ -122,7 +122,7 @@ export class IconResolver {
         }
 
         // Resolve a base MIME type via path extension
-        const base2Ext = getMimeType(file.name);
+        const base2Ext = getMimeType((file['vanityName'] || file.name));
 
         // If we get a path extension, we can easily map the icon
         if (base2Ext) {
@@ -134,7 +134,7 @@ export class IconResolver {
 
         // Lookup a filename from material-icon-theme
         const filename = fileIconNameList
-            .filter(d => file.name.toLowerCase() == d.val.toLowerCase())
+            .filter(d => (file['vanityName'] || file.name).toLowerCase() == d.val.toLowerCase())
             .sort((a, b) => b.val.length - a.val.length)
             [0]?.iconName;
 
@@ -155,7 +155,7 @@ export class IconResolver {
 
         // Check the file's extension -- we may
         const fileext = fileIconExtensionList
-            .filter(d => file.name.toLowerCase().endsWith('.' + d.val.toLowerCase()))
+            .filter(d => (file['vanityName'] || file.name).toLowerCase().endsWith('.' + d.val.toLowerCase()))
             .sort((a, b) => b.val.length - a.val.length)
             [0]?.iconName;
 

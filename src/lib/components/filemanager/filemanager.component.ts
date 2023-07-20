@@ -12,6 +12,7 @@ import { TreeViewComponent } from './tree-view/tree-view.component';
 import { Fetch } from '../../util';
 import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../types';
 import { IconResolver } from './icon-resolver';
+import { DialogService } from 'src/lib/services/dialog.service';
 
 // TODO:
 /**
@@ -86,9 +87,15 @@ export type NgxFileManagerConfiguration = Partial<{
 
     apiSettings: {
         listEntriesUrl: string,
+        listEntriesUrlTemplate?: (path: string) => string,
         downloadEntryUrl: string,
+        downloadEntryUrlTemplate?: (path: string) => string,
         uploadEntryUrl: string,
-        deleteEntryUrl: string
+        uploadEntryUrlTemplate?: (path: string) => string,
+        deleteEntryUrl: string,
+        deleteEntryUrlTemplate?: (path: string) => string,
+        createDirectoryUrl: string,
+        createDirectoryUrlTemplate?: (path: string) => string
     },
 
     /**
@@ -145,7 +152,8 @@ export class FilemanagerComponent implements OnInit {
             listEntriesUrl: `/api/filesystem/`,
             uploadEntryUrl: `/api/filesystem/`,
             downloadEntryUrl: `/api/filesystem/`,
-            deleteEntryUrl: `/api/filesystem/`
+            deleteEntryUrl: `/api/filesystem/`,
+            createDirectoryUrl: `/api/filesystem/folder`
         }
     };
 
@@ -210,7 +218,11 @@ export class FilemanagerComponent implements OnInit {
     }
 
     onTreeViewLoadChildren({item, cb}) {
-        this.fetch.post(this.config.apiSettings.listEntriesUrl, { path: item.path + item.name, showHidden: this.showHiddenFiles })
+        const url = this.config.apiSettings.listEntriesUrlTemplate
+                  ? this.config.apiSettings.listEntriesUrlTemplate(item.path + item.name)
+                  : this.config.apiSettings.listEntriesUrl
+
+        this.fetch.post(url, { path: item.path + item.name, showHidden: this.showHiddenFiles })
             .then((data: any) => {
                 const dirs: DirectoryDescriptor[] = data.dirs;
                 cb(dirs);
