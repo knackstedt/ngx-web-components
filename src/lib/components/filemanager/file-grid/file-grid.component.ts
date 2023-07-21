@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject, TemplateRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef, Optional, Inject, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
@@ -18,8 +18,6 @@ import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '
 import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { CtxRenameComponent } from './ctx-rename/ctx-rename.component';
-import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
 
 const itemWidth = (80 + 20);
 
@@ -38,8 +36,7 @@ const itemWidth = (80 + 20);
         MatProgressBarModule,
         TabulatorComponent,
         NgxContextMenuDirective,
-        ScrollingModule,
-        CtxRenameComponent
+        ScrollingModule
     ],
     standalone: true
 })
@@ -144,7 +141,9 @@ export class FileGridComponent implements OnInit {
             action: (data) => {
                 // console.log("New folder goodness");
                 // console.log(data);
-                this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", { inputs: { path: data.path, name: data.name || '', config: this.config } })
+                this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", {
+                    inputs: { path: data?.path || this.path, name: data?.name || '', config: this.config }
+                }).then(r => this.loadFolder())
             }
         },
         {
@@ -232,18 +231,14 @@ export class FileGridComponent implements OnInit {
 
     constructor(
         @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
-        private readonly lazyLoader: NgxLazyLoaderService,
         private readonly fetch: Fetch,
         private readonly keyboard: KeyboardService,
         private readonly dialog: DialogService,
         private readonly matDialog: MatDialog,
-        private readonly fileManager: FilemanagerComponent
+        private readonly fileManager: FilemanagerComponent,
+        private readonly changeDetector: ChangeDetectorRef
     ) {
-        lazyLoader.registerComponent({
-            id: "folder-rename",
-            group: "@dotglitch/ngx-web-components",
-            load: () => import('../folder-rename/folder-rename.component')
-        })
+
 
         this.iconResolver = new IconResolver(libConfig.assetPath);
 
@@ -400,11 +395,11 @@ export class FileGridComponent implements OnInit {
                 icon: "drive_file_rename_outline",
                 isVisible: data => !data.path.includes("#/"), // omit files in compressed dirs
                 // shortcutLabel: "F2",
-                // action: (evt) => {
-
-                // },
-                // childTemplate: RenameComponent as any
-                childTemplate: this.renameTemplate,
+                action: (data) => {
+                    this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", {
+                        inputs: { path: data?.path || this.path, name: data?.name || '', config: this.config }
+                    }).then(r => this.loadFolder())
+                }
             },
 
             // Extract Here
@@ -482,7 +477,7 @@ export class FileGridComponent implements OnInit {
         ];
     }
 
-    loadFolder() {
+    async loadFolder() {
         this.showLoader = true;
         this.hideLoader = false;
 
@@ -511,6 +506,8 @@ export class FileGridComponent implements OnInit {
                 this.resize();
                 this.loadFiles.next(descriptors);
 
+                if (this.sortedFolders.length > 0)
+                    this.flowRows();
 
                 setTimeout(() => this.resize(), 250);
                 setTimeout(() => this.resize(), 500);
@@ -670,6 +667,9 @@ export class FileGridComponent implements OnInit {
 
             this.flowRows();
         }
+
+        if (this.sortedFolders?.length == 0)
+            this.flowRows();
     }
 
     onDragStart(evt: DragEvent, item: FSDescriptor) {

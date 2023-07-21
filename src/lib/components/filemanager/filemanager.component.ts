@@ -94,6 +94,8 @@ export type NgxFileManagerConfiguration = Partial<{
         uploadEntryUrlTemplate?: (path: string) => string,
         deleteEntryUrl: string,
         deleteEntryUrlTemplate?: (path: string) => string,
+        renameEntryUrl: string,
+        renameEntryUrlTemplate?: (path: string) => string,
         createDirectoryUrl: string,
         createDirectoryUrlTemplate?: (path: string) => string
     },
@@ -153,7 +155,8 @@ export class FilemanagerComponent implements OnInit {
             uploadEntryUrl: `/api/filesystem/`,
             downloadEntryUrl: `/api/filesystem/`,
             deleteEntryUrl: `/api/filesystem/`,
-            createDirectoryUrl: `/api/filesystem/folder`
+            createDirectoryUrl: `/api/filesystem/folder`,
+            renameEntryUrl: `/api/filesystem/rename`
         }
     };
 
@@ -200,9 +203,16 @@ export class FilemanagerComponent implements OnInit {
 
     constructor (
         @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
+        private readonly lazyLoader: NgxLazyLoaderService,
         private viewContainer: ViewContainerRef,
         private fetch: Fetch
     ) {
+        lazyLoader.registerComponent({
+            id: "folder-rename",
+            group: "@dotglitch/ngx-web-components",
+            load: () => import('./folder-rename/folder-rename.component')
+        })
+
         this.iconResolver = new IconResolver(libConfig.assetPath);
     }
 

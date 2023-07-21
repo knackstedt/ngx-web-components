@@ -22,8 +22,10 @@ import { NgxFileManagerConfiguration } from '../filemanager.component';
 export class FolderRenameComponent implements OnInit {
 
     @Input() path: string;
-    @Input() name: string;
+    @Input() name: string = '';
     @Input() config: NgxFileManagerConfiguration;
+
+    isRename = false;
 
     constructor(
         public dialog: MatDialogRef<any>,
@@ -31,14 +33,24 @@ export class FolderRenameComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.isRename = this.name.length > 0;
     }
 
     onSave() {
-        const url = this.config.apiSettings.createDirectoryUrlTemplate
-                  ? this.config.apiSettings.createDirectoryUrlTemplate(this.path + this.name)
-                  : this.config.apiSettings.createDirectoryUrl
+        if (this.isRename) {
+            const url = this.config.apiSettings.renameEntryUrlTemplate
+                ? this.config.apiSettings.renameEntryUrlTemplate(this.path + this.name)
+                : this.config.apiSettings.renameEntryUrl
 
-        this.fetch.post(url, {path: this.path + this.name});
+            this.fetch.post(url, { path: this.path + '/' + this.name });
+        }
+        else {
+            const url = this.config.apiSettings.createDirectoryUrlTemplate
+                      ? this.config.apiSettings.createDirectoryUrlTemplate(this.path + this.name)
+                      : this.config.apiSettings.createDirectoryUrl
+
+            this.fetch.post(url, {path: this.path +'/'+ this.name});
+        }
         this.dialog.close(true);
     }
 }

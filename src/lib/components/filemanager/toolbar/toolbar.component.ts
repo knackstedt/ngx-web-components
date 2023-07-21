@@ -9,6 +9,7 @@ import { GtkIconButtonComponent } from './icon-button/icon-button.component';
 import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { FileSorting } from '../../../types';
+import { DialogService } from '../../../services/dialog.service';
 
 @Component({
     selector: 'app-toolbar',
@@ -45,7 +46,8 @@ export class ToolbarComponent {
     @Input() showBareMinimum = false;
 
     constructor(
-        public filemanager: FilemanagerComponent
+        public filemanager: FilemanagerComponent,
+        private dialog: DialogService
     ) {
 
     }
@@ -55,35 +57,35 @@ export class ToolbarComponent {
             label: "New Folder",
             action: (folder) => {
                 //
+                this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", { inputs: { path: this.currentTab.path, name: '', config: this.config } })
             }
         },
-        {
-            label: "Add to Bookmarks (WIP)",
-            action: (folder) => {
-                //
-            }
-        },
-        "separator",
-        {
-            label: "Paste",
-            action: (folder) => {
-                //
-            }
-        },
-        {
-            label: "Select All",
-            action: (folder) => {
-                //
-            }
-        },
-        "separator",
-        {
-            label: "Properties",
-            action: (folder) => {
-                //
-            }
-        },
-
+        // {
+        //     label: "Add to Bookmarks (WIP)",
+        //     action: (folder) => {
+        //         //
+        //     }
+        // },
+        // "separator",
+        // {
+        //     label: "Paste",
+        //     action: (folder) => {
+        //         //
+        //     }
+        // },
+        // {
+        //     label: "Select All",
+        //     action: (folder) => {
+        //         //
+        //     }
+        // },
+        // "separator",
+        // {
+        //     label: "Properties",
+        //     action: (folder) => {
+        //         //
+        //     }
+        // },
     ]
 
     sortOptions: ContextMenuItem<FSDescriptor>[] = [

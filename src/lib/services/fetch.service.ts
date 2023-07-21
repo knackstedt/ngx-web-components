@@ -65,8 +65,10 @@ export class Fetch {
                     return of(null);
                 }))
                 .subscribe(data => {
-                    o.unsubscribe();
                     resolve(data as unknown as T);
+                    setTimeout(() => {
+                        o.unsubscribe();
+                    }, 30)
                 });
         });
 
