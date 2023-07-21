@@ -1,6 +1,6 @@
 :host {
-    border: 1px solid #171717;
-    border-bottom-color: #000;
+    border: 1px solid var(--filemanager-breadcrumb-border-color, #171717);
+    border-bottom-color: var(--filemanager-breadcrumb-border-bottom-color, #000);
     border-radius: 6px;
     font-size: 14px;
     display: flex;
@@ -19,12 +19,12 @@ button {
     border: none;
     transition: color 200ms ease;
     height: 100%;
-    color: #bbb;
+    color: var(--filemanager-breadcrumb-color, #bbb);
     border-radius: 6px;
 
     &:hover {
-        background-color: #4a4a4a;
-        color: #fff;
+        background-color:  var(--filemanager-breadcrumb-button-hover-background-color, #4a4a4a);
+        color:  var(--filemanager-breadcrumb-button-hover-color, #fff);
     }
 
     &::after {
