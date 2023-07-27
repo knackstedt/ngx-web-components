@@ -73,6 +73,12 @@ export type NgxFileManagerConfiguration = Partial<{
      * Initial path
      */
     path: string,
+    /**
+     * Restrict users to only navigate around to subpaths of the specified `path`
+     */
+    navigateOnlyToDescendants: boolean,
+    showBreadcrumb: boolean,
+    showTreeview: boolean,
 
     /**
      * Name of the "root" path `/`
@@ -110,6 +116,11 @@ export type NgxFileManagerConfiguration = Partial<{
     iconResolver: (file: FSDescriptor) => string,
 
     imageSize: "normal" | "small" | "huge",
+
+    /**
+     *
+     */
+    selectionMode: "single" | "multiple",
 
     /**
      * This determines if the filemanager shows selected entries
@@ -187,6 +198,20 @@ export class FilemanagerComponent implements OnInit {
     @Output() fileCopy = new EventEmitter();
     @Output() filePaste = new EventEmitter();
 
+    @Output() fileSelect = new EventEmitter<FileDescriptor>();
+    @Output() fileDblClick = new EventEmitter<FileDescriptor>();
+    @Output() folderSelect = new EventEmitter<DirectoryDescriptor>();
+    @Output() folderDblClick = new EventEmitter<DirectoryDescriptor>();
+
+    /**
+     * Emits when multiple file selections change.
+     */
+    @Output() filesSelect = new EventEmitter<FSDescriptor[]>();
+    /**
+     * Emits when any selection changes, single or multiple files.
+     */
+    // @Output() selectionChange = new EventEmitter<FSDescriptor[]>();
+
     showHiddenFiles = false;
     showSidebar = true;
     sidebarOverlay = false;
@@ -217,6 +242,8 @@ export class FilemanagerComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        console.log("FILEMANAGER", this.config);
+
         this.initTab(this.config.path);
         this.currentTab = this.tabs[0];
     }
@@ -327,10 +354,6 @@ export class FilemanagerComponent implements OnInit {
         return path?.split('/').filter(p => p).pop();
     }
 
-    async onFileOpen(files: FSDescriptor[]) {
-
-    }
-
     async onResize() {
         // Trigger re-calculation of the view
         this.fileGrids.forEach(g => g.resize());
@@ -368,5 +391,15 @@ export class FilemanagerComponent implements OnInit {
     // Tell the child grid to refresh it's sorting
     refreshSorting() {
         this.fileGrids.forEach(g => g.sort());
+    }
+
+    getFileData(file: FileDescriptor) {
+        let url = this.config.apiSettings.renameEntryUrlTemplate
+            ? this.config.apiSettings.renameEntryUrlTemplate(file.path + file.name)
+            : this.config.apiSettings.renameEntryUrl;
+
+        url = (url.includes('?') ? '&' : '?') + `dir=${file.path}&file=${file.name}`;
+
+        return url;
     }
 }

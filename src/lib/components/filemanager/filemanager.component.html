@@ -3,14 +3,14 @@
     [(showHiddenFiles)]="showHiddenFiles"
     [(showSidebar)]="showSidebar"
     [config]="config"
-    [showBareMinimum]="width < 500"
+    [showBareMinimum]="width < 500 && config.showBreadcrumb != false"
     (onBreadcrumbClick)="onBreadcrumbClick($event)"
 />
 
 <mat-drawer-container>
     <mat-drawer #drawer mode="over">
         <app-toolbar
-            *ngIf="width < 500"
+            *ngIf="width < 500 && config.showBreadcrumb != false"
             [currentTab]="currentTab"
             [(showHiddenFiles)]="showHiddenFiles"
             [(showSidebar)]="showSidebar"
@@ -31,10 +31,10 @@
                 [size]="215"
                 [minSize]="215"
                 [maxSize]="width/4"
-                [visible]="!sidebarOverlay"
+                [visible]="!sidebarOverlay && config.showTreeview != false"
             >
                 <div class="sidebar"
-                    *ngIf="!sidebarOverlay"
+                    *ngIf="!sidebarOverlay && config.showTreeview != false"
                     (click)="currentTab.selection = []"
                 >
                     <app-tree-view
@@ -42,15 +42,6 @@
                         (loadChildren)="onTreeViewLoadChildren($event)"
                         (click)="onTreeViewSelect($event)"
                     />
-
-                    <!-- <ul>
-                        <li (click)="onBreadcrumbClick({ id: '/' })">
-                            <img style="width: 24px; margin-right: 8px" src="assets/lib/icons/folder-open.svg">
-                            Root
-                        </li>
-                        <li *ngFor="let dir of currentTab.sidebarItems" (click)="onBreadcrumbClick({ id: dir.path })" style="padding-left: 20px">
-                        </li>
-                    </ul> -->
                 </div>
             </as-split-area>
             <as-split-area style="background-color: var(--filemanager-background-color, #272727);">
@@ -79,8 +70,12 @@
                                     (pathChange)="onTabPathChange(tab)"
                                     [(value)]="gridValues[i]"
                                     (valueChange)="onGridValueChange()"
-                                    (fileOpen)="onFileOpen($event)"
                                     (loadFiles)="onTabLoadFiles(tab, $event)"
+
+                                    (fileSelect)="fileSelect.next($event)"
+                                    (fileDblClick)="fileDblClick.next($event)"
+                                    (folderSelect)="folderSelect.next($event)"
+                                    (folderDblClick)="folderDblClick.next($event)"
                                 />
                             </ng-template>
                         </mat-tab>

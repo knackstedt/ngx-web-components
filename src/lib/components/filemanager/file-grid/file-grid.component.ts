@@ -51,6 +51,13 @@ export class FileGridComponent implements OnInit {
     @Input() set path(value: string) {
         if (!value) return;
 
+        if (this._path && this.config.navigateOnlyToDescendants) {
+            if (!value.startsWith('/'))
+                value = '/' + value;
+            if (!value.startsWith(this.config.path))
+                return;
+        }
+
         let prev = this._path;
 
         this._path = value;
@@ -72,8 +79,10 @@ export class FileGridComponent implements OnInit {
 
     @Input() gridSize: "small" | "normal" | "large" = "normal";
 
-    @Output() fileSelect = new EventEmitter<FSDescriptor[]>();
-    @Output() fileOpen = new EventEmitter<FSDescriptor[]>();
+    @Output() fileSelect = new EventEmitter<FileDescriptor>();
+    @Output() fileDblClick = new EventEmitter<FileDescriptor>();
+    @Output() folderSelect = new EventEmitter<DirectoryDescriptor>();
+    @Output() folderDblClick = new EventEmitter<DirectoryDescriptor>();
     @Output() newTab = new EventEmitter<{ path: string; }>();
     @Output() loadFiles = new EventEmitter<FSDescriptor[]>();
 
@@ -293,7 +302,7 @@ export class FileGridComponent implements OnInit {
     }
 
     async ngOnInit() {
-        this.loadFolder();
+        // this.loadFolder();
     }
 
     ngAfterViewInit() {
@@ -487,8 +496,8 @@ export class FileGridComponent implements OnInit {
 
         this.fetch.post(url, { path: this.path, showHidden: this.showHiddenFiles })
             .then((data: any) => {
-                const files: FileDescriptor[] = data.files || [];
-                const dirs: DirectoryDescriptor[] = data.dirs;
+                const files: FileDescriptor[] = data?.files || [];
+                const dirs: DirectoryDescriptor[] = data?.dirs || [];
                 const descriptors = files.concat(dirs as any) as FSDescriptor[];
 
                 descriptors.forEach(f => {
@@ -566,20 +575,29 @@ export class FileGridComponent implements OnInit {
         else
             this.selection = [item];
 
+        if (this.selection.length == 1) {
+            if (this.selection[0].kind == "directory")
+                this.folderSelect.next(this.selection[0]);
+            else
+                this.fileSelect.next(this.selection[0]);
+        }
+
         this.selectionChange.next(this.selection);
         this.selectionText = this.getSelectionText();
     }
 
     onItemClick(file: FSDescriptor) {
-        console.log(file)
-        if (file.kind == "directory"){
+        if (file.kind == "directory") {
+            this.folderDblClick.next(file);
             this.path = file.path + file.name;
         }
         else if (file.ext == "zip") {
+            this.fileDblClick.next(file);
             this.path = file.path + file.name;
         }
         else {
-            this.fileOpen.next([file]);
+            this.fileDblClick.next(file);
+            this.fileSelect.next(file);
         }
     }
 

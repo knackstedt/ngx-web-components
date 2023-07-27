@@ -176,6 +176,7 @@ export class IconResolver {
 
     // TODO: resolve dynamic thumbnails for media documents
     resolveIcon(file: FSDescriptor): { path: string, needsBackdrop: boolean; } {
+        if (!file) return null;
         if (file[symIcon]) return file[symIcon];
 
         if (file.kind == "directory") {

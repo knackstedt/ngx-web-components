@@ -164,6 +164,9 @@
 :host ::ng-deep ng-scrollbar.ng-scrollbar {
     box-sizing: border-box !important;
     --scrollbar-thumb-color: #666;
+
+    min-height: 200px;
+    min-width: 200px;
 }
 
 
