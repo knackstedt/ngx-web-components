@@ -27,6 +27,7 @@
     "angular-split": "^15.0.0",
     "material-icon-theme": "4.27.0",
     "monaco-editor": "^0.39.0",
+    "monaco-editor-auto-typings": "^0.4.4",
     "music-metadata": "^7.13.0",
     "ngx-scrollbar": "^11.0.0",
     "rxjs": "~7.8.0",

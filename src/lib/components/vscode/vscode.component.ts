@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 
 import * as MonacoEditor from 'monaco-editor';
+import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings/custom-editor';
 import { debounceTime } from 'rxjs';
 
 let Monaco: typeof MonacoEditor;
@@ -151,6 +152,13 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
         }
 
         let editor = this.editor = Monaco.editor.create(this.viewContainer?.element?.nativeElement, this.settings as any);
+
+        // const autoTypings = await
+        AutoTypings.create(editor, {
+            sourceCache: new LocalStorageCache(), // Cache loaded sources in localStorage. May be omitted
+            monaco: Monaco
+            // Other options...
+        });
 
         if (this.code)
             editor.setValue(this.code);

@@ -33,7 +33,8 @@
     "tslib": "^2.3.0",
     "angular-split": "^15.0.0",
     "ngx-scrollbar": "^12.0.0",
-    "tabulator-tables": "^5.5.0"
-  },
+    "tabulator-tables": "^5.5.0",
+    "monaco-editor-auto-typings": "^0.4.4"
+},
   "sideEffects": false
 }
