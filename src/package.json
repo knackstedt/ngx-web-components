@@ -1,6 +1,6 @@
 {
   "name": "@dotglitch/ngx-web-components",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "repository": {
     "url": "https://github.com/knackstedt/ngx-web-components"
   },
@@ -35,6 +35,6 @@
     "ngx-scrollbar": "^12.0.0",
     "tabulator-tables": "^5.5.0",
     "monaco-editor-auto-typings": "^0.4.4"
-},
+  },
   "sideEffects": false
 }
