@@ -44,7 +44,7 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
     }
     get language() { return this._language }
 
-    @Input() installationLocation = "/lib/monaco/vs/";
+    @Input() installationLocation = "/lib/monaco/vs";
 
 
     @Input() tabSize = 2;
@@ -171,6 +171,9 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
         if (!window['require']) window['require'] = {} as any;
         if (!window['require']['paths']) window['require']['paths'] = {};
 
+        if (this.installationLocation.endsWith('/'))
+            this.installationLocation = this.installationLocation.slice(0, -1);
+
         window['require']['paths'].vs = this.installationLocation;
 
         const monacoFiles = [
@@ -182,7 +185,7 @@ export class VscodeComponent implements AfterViewInit, OnDestroy {
         for (let i = 0; i < monacoFiles.length; i++) {
             const script = document.createElement("script");
             script.setAttribute("defer", "");
-            script.setAttribute("src", this.installationLocation + monacoFiles[i]);
+            script.setAttribute("src", this.installationLocation + '/' + monacoFiles[i]);
             document.body.append(script);
         }
         VscodeComponent.isMonacoInstalled = true;
