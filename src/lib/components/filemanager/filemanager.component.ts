@@ -92,17 +92,17 @@ export type NgxFileManagerConfiguration = Partial<{
     maxHistoryLength: number,
 
     apiSettings: {
-        listEntriesUrl: string,
+        listEntriesUrl?: string,
         listEntriesUrlTemplate?: (path: string) => string,
-        downloadEntryUrl: string,
+        downloadEntryUrl?: string,
         downloadEntryUrlTemplate?: (path: string) => string,
-        uploadEntryUrl: string,
+        uploadEntryUrl?: string,
         uploadEntryUrlTemplate?: (path: string) => string,
-        deleteEntryUrl: string,
+        deleteEntryUrl?: string,
         deleteEntryUrlTemplate?: (path: string) => string,
-        renameEntryUrl: string,
+        renameEntryUrl?: string,
         renameEntryUrlTemplate?: (path: string) => string,
-        createDirectoryUrl: string,
+        createDirectoryUrl?: string,
         createDirectoryUrlTemplate?: (path: string) => string
     },
 
