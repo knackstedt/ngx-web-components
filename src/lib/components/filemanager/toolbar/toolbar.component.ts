@@ -10,6 +10,8 @@ import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { FileSorting } from '../../../types';
 import { DialogService } from '../../../services/dialog.service';
+import { Fetch } from '../../../services/fetch.service';
+import { uploadFile } from '../helpers';
 
 @Component({
     selector: 'app-toolbar',
@@ -47,7 +49,8 @@ export class ToolbarComponent {
 
     constructor(
         public filemanager: FilemanagerComponent,
-        private dialog: DialogService
+        private dialog: DialogService,
+        private fetch: Fetch
     ) {
 
     }
@@ -56,9 +59,18 @@ export class ToolbarComponent {
         {
             label: "New Folder",
             action: (folder) => {
-                //
                 this.dialog.open("folder-rename", "@dotglitch/ngx-web-components", { inputs: { path: this.currentTab.path, name: '', config: this.config } })
             }
+        },
+        {
+            label: "Upload file",
+            icon: "file_upload",
+            action: (evt) => uploadFile(this.fetch, this.config, this.filemanager.currentTab.path).then(res => {
+                // Tell the current tab to reload it's data.
+                const tab =  this.filemanager.currentTab;
+                const grid = this.filemanager.fileGrids.find(t => t.tab.id == tab.id);
+                grid.loadFolder();
+            })
         },
         // {
         //     label: "Add to Bookmarks (WIP)",

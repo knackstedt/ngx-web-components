@@ -10,7 +10,7 @@ import { CellComponent, EmptyCallback } from 'tabulator-tables';
 import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
-import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
+import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { Fetch } from '../../../services/fetch.service';
 import { DialogService } from '../../../services/dialog.service';
 import { KeyboardService } from '../../../services/keyboard.service';
@@ -18,6 +18,7 @@ import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '
 import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { uploadFile } from '../helpers';
 
 const itemWidth = (80 + 20);
 
@@ -72,12 +73,10 @@ export class FileGridComponent implements OnInit {
     @Output() pathChange = new EventEmitter<string>();
 
     @Input() config: NgxFileManagerConfiguration = {};
-
     @Input() showHiddenFiles = false;
-
     @Input() viewMode: "list" | "grid" = "grid";
-
     @Input() gridSize: "small" | "normal" | "large" = "normal";
+    @Input() tab: FileViewTab;
 
     @Output() fileSelect = new EventEmitter<FileDescriptor>();
     @Output() fileDblClick = new EventEmitter<FileDescriptor>();
@@ -159,42 +158,9 @@ export class FileGridComponent implements OnInit {
             label: "Upload file",
             // shortcutLabel: "Ctrl+D",
             icon: "file_upload",
-            action: (evt) => {
-                const inEl = document.createElement('input');
-                inEl.setAttribute('type', 'file');
-                inEl.setAttribute('multiple', '');
-                inEl.click();
-                // let photo = [0];
-                let formData = new FormData();
-
-                inEl.addEventListener('change', () => {
-                    Object.keys(inEl.files).forEach(k => {
-                        const file: {
-                            lastModified: number,
-                            lastModifiedDate: Date,
-                            name: string,
-                            size: number,
-                            type: string
-                        } = inEl.files[k];
-
-                        const name = file.name;
-                        formData.append(name, file as any);
-                    });
-                    formData.append("data", JSON.stringify({
-                        path: this._path
-                    }));
-
-                    const url = this.config.apiSettings.uploadEntryUrlTemplate
-                              ? this.config.apiSettings.uploadEntryUrlTemplate(evt.path + evt.name)
-                              : this.config.apiSettings.uploadEntryUrl
-
-                    // window.fetch(this.config.apiSettings.uploadEntryUrl, { method: 'POST', body: formData });
-                    this.fetch.post(url, formData).then(res => {
-                        inEl.remove();
-                        this.loadFolder();
-                    });
-                })
-            }
+            action: (evt) => uploadFile(this.fetch, this.config, this._path, evt ? (evt.path + evt.name) : null).then(res => {
+                this.loadFolder();
+            })
         },
         "separator",
         // {

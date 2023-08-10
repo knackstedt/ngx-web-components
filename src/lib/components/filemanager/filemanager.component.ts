@@ -242,8 +242,6 @@ export class FilemanagerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        console.log("FILEMANAGER", this.config);
-
         this.initTab(this.config.path);
         this.currentTab = this.tabs[0];
     }
@@ -317,16 +315,10 @@ export class FilemanagerComponent implements OnInit {
     }
 
     onTreeViewSelect(item: FSDescriptor) {
-        console.log("treeviewselect", item);
         this.currentTab.path = item.path + item.name;
     }
 
     onTabLoadFiles(tab: FileViewTab, files: FSDescriptor[]) {
-        // tab.sidebarItems = files.filter(f => f.kind == "directory");
-        // return;
-
-        console.log(tab, files);
-
         if (tab.sidebarItems.length == 0) {
             tab.sidebarItems = files.filter(f => f.kind == "directory");
             return;
@@ -391,6 +383,10 @@ export class FilemanagerComponent implements OnInit {
     // Tell the child grid to refresh it's sorting
     refreshSorting() {
         this.fileGrids.forEach(g => g.sort());
+    }
+
+    refreshData() {
+        this.fileGrids.forEach(g => g.loadFolder());
     }
 
     getFileData(file: FileDescriptor) {
