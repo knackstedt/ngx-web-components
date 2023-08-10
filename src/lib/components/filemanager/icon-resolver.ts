@@ -36,29 +36,29 @@ Object.entries(folderNames).forEach(([name, icon]) => {
     });
 })
 
-const getMimeType = (name: string) =>
-    (/\.(appimage)$/.test(name) && "compressed") ||
-    (/\.(pot|potx|pps|ppsx|ppt|pptm|pptx)$/.test(name) && "presentation") ||
-    (/\.(odt|rtf|doc|docm|docx|dot|dotm|dotx)$/.test(name) && "richtext") ||
-    (/\.(ods|xls|xlsm|xlsx|xps|xlsx|csv)$/.test(name) && "spreadsheet");
+// const getMimeType = (name: string) =>
+//     (/\.(appimage)$/.test(name) && "compressed") ||
+//     (/\.(pot|potx|pps|ppsx|ppt|pptm|pptx)$/.test(name) && "presentation") ||
+//     (/\.(odt|rtf|doc|docm|docx|dot|dotm|dotx)$/.test(name) && "richtext") ||
+//     (/\.(ods|xls|xlsm|xlsx|xps|xlsx|csv)$/.test(name) && "spreadsheet");
 
 
 // Limited list of pop-icons that match before mat-icons
-const builtinIcons = [
-    "7z",
-    "apk",
-    "arc",
-    "bz",
-    "deb",
-    "gz",
-    "pdf",
-    "rar",
-    "rpm",
-    "tar",
-    "xar",
-    "xz",
-    "zip"
-];
+// const builtinIcons = [
+//     "7z",
+//     "apk",
+//     "arc",
+//     "bz",
+//     "deb",
+//     "gz",
+//     "pdf",
+//     "rar",
+//     "rpm",
+//     "tar",
+//     "xar",
+//     "xz",
+//     "zip"
+// ];
 
 export class IconResolver {
     public path: string;
@@ -113,24 +113,24 @@ export class IconResolver {
     private resolveFileIcon (file: FSDescriptor) {
         // Folders always use the material-icon-theme
 
-        const baseExt = builtinIcons.find(ext => (file['vanityName'] || file.name).endsWith('.' + ext));
-        if (baseExt) {
-            return {
-                path: `${this.path}/pop/exts/${baseExt}.svg`,
-                needsBackdrop: false
-            };
-        }
+        // const baseExt = builtinIcons.find(ext => (file['vanityName'] || file.name).endsWith('.' + ext));
+        // if (baseExt) {
+        //     return {
+        //         path: `${this.path}/pop/exts/${baseExt}.svg`,
+        //         needsBackdrop: false
+        //     };
+        // }
 
-        // Resolve a base MIME type via path extension
-        const base2Ext = getMimeType((file['vanityName'] || file.name));
+        // // Resolve a base MIME type via path extension
+        // const base2Ext = getMimeType((file['vanityName'] || file.name));
 
-        // If we get a path extension, we can easily map the icon
-        if (base2Ext) {
-            return {
-                path: `${this.path}/pop/${base2Ext}.svg`,
-                needsBackdrop: false
-            };
-        }
+        // // If we get a path extension, we can easily map the icon
+        // if (base2Ext) {
+        //     return {
+        //         path: `${this.path}/pop/${base2Ext}.svg`,
+        //         needsBackdrop: false
+        //     };
+        // }
 
         // Lookup a filename from material-icon-theme
         const filename = fileIconNameList
@@ -169,7 +169,8 @@ export class IconResolver {
 
 
         return {
-            path: isFileBinary ? `${this.path}/pop/text.svg` : `${this.path}/pop/binary.svg`,
+            path: isFileBinary ? `${this.path}/material/document.svg` : `${this.path}/material/assembly.svg`,
+            // path: isFileBinary ? `${this.path}/pop/text.svg` : `${this.path}/pop/binary.svg`,
             needsBackdrop: false
         };
     }
