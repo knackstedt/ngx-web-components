@@ -1,6 +1,5 @@
+import { Fetch } from '@dotglitch/ngx-common';
 import { NgxFileManagerConfiguration } from './filemanager.component';
-import { Fetch } from '../../services/fetch.service';
-
 
 export const uploadFile = (fetch: Fetch, config: NgxFileManagerConfiguration, currentDirectory: string, targetPath?: string) => {
     return new Promise(r => {

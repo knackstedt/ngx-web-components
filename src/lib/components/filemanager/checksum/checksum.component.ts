@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { Fetch } from '../../../services/fetch.service';
+import { Fetch } from '@dotglitch/ngx-common';
 import { BehaviorSubject } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';

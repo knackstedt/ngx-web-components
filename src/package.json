@@ -26,8 +26,7 @@
     "@angular/core": ">=15.0.0",
     "@angular/cdk": ">=15.0.0",
     "@angular/material": ">=15.0.0",
-    "@dotglitch/ngx-ctx-menu": "0.2.x",
-    "@dotglitch/ngx-lazy-loader": "0.0.x"
+    "@dotglitch/ngx-common": "1.x"
   },
   "dependencies": {
     "tslib": "^2.3.0",

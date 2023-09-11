@@ -3,14 +3,13 @@ import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
-import { NgxAppMenuDirective, NgxContextMenuDirective, ContextMenuItem } from '@dotglitch/ngx-ctx-menu';
+import { MenuDirective, MenuItem } from '@dotglitch/ngx-common';
 
 import { GtkIconButtonComponent } from './icon-button/icon-button.component';
 import { GtkBreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
 import { FileSorting } from '../../../types';
-import { DialogService } from '../../../services/dialog.service';
-import { Fetch } from '../../../services/fetch.service';
+import { Fetch, DialogService } from '@dotglitch/ngx-common';
 import { uploadFile } from '../helpers';
 
 @Component({
@@ -23,8 +22,7 @@ import { uploadFile } from '../helpers';
         MatButtonModule,
         GtkIconButtonComponent,
         GtkBreadcrumbComponent,
-        NgxContextMenuDirective,
-        NgxAppMenuDirective
+        MenuDirective
     ],
     standalone: true
 })
@@ -55,7 +53,7 @@ export class ToolbarComponent {
 
     }
 
-    fileOptions: ContextMenuItem<FSDescriptor>[] = [
+    fileOptions: MenuItem<FSDescriptor>[] = [
         {
             label: "New Folder",
             action: (folder) => {
@@ -100,7 +98,7 @@ export class ToolbarComponent {
         // },
     ]
 
-    sortOptions: ContextMenuItem<FSDescriptor>[] = [
+    sortOptions: MenuItem<FSDescriptor>[] = [
         {
             label: "Sort",
             separator: true

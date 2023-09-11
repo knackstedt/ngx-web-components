@@ -9,12 +9,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { AngularSplitModule } from 'angular-split';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
+import { MenuItem, MenuDirective, openMenu } from '@dotglitch/ngx-common';
 import { CellComponent, EmptyCallback } from 'tabulator-tables';
 import { TabulatorComponent } from '../tabulator/tabulator.component';
 import { VisualizerComponent } from './visualizer/visualizer.component';
-import { Fetch } from '../../services/fetch.service';
-import { UrlSanitizer } from '../../services/urlsanitizer.pipe';
+import { Fetch, UrlBypass } from '@dotglitch/ngx-common';
+
 
 type AudioFile = {
     name: string,
@@ -38,7 +38,7 @@ type AudioGroup = {
         CommonModule,
         AngularSplitModule,
         NgScrollbarModule,
-        NgxContextMenuDirective,
+        MenuDirective,
         ScrollingModule,
         MatTabsModule,
         MatSliderModule,
@@ -46,7 +46,7 @@ type AudioGroup = {
         MatButtonModule,
         VisualizerComponent,
         TabulatorComponent,
-        UrlSanitizer
+        UrlBypass
     ],
     standalone: true
 })
@@ -70,7 +70,7 @@ export class MusicLibraryComponent implements OnInit {
 
     ngxShowDistractor$ = new BehaviorSubject(true);
 
-    groupedCtxItems: ContextMenuItem<AudioGroup>[] = [
+    groupedCtxItems: MenuItem<AudioGroup>[] = [
         {
             label: "Play Now",
             shortcutLabel: "Alt+Enter",
@@ -118,7 +118,7 @@ export class MusicLibraryComponent implements OnInit {
         },
     ];
 
-    musicCtxItems: ContextMenuItem<AudioFile>[] = [
+    musicCtxItems: MenuItem<AudioFile>[] = [
         {
             label: "Play Now",
             shortcutLabel: "Alt+Enter",
@@ -183,7 +183,7 @@ export class MusicLibraryComponent implements OnInit {
         // }
     ];
 
-    queueCtxItems: ContextMenuItem<AudioFile>[] = [
+    queueCtxItems: MenuItem<AudioFile>[] = [
         {
             label: "Clear Queue",
             icon: "clear_all",
@@ -327,7 +327,7 @@ export class MusicLibraryComponent implements OnInit {
     }
 
     onRowCtx({ event, row }) {
-        openContextMenu(this.dialog, this.musicCtxItems, row.getData(), event);
+        openMenu(this.dialog, this.musicCtxItems, row.getData(), event);
     }
 
     debug(...args) {

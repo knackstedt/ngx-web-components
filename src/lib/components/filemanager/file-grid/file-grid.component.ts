@@ -7,13 +7,12 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import { CellComponent, EmptyCallback } from 'tabulator-tables';
-import { ContextMenuItem, NgxContextMenuDirective, openContextMenu } from '@dotglitch/ngx-ctx-menu';
+import { MenuItem, MenuDirective, openMenu } from '@dotglitch/ngx-common';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 import { DirectoryDescriptor, FileDescriptor, FilemanagerComponent, FileViewTab, FSDescriptor, NgxFileManagerConfiguration } from '../filemanager.component';
-import { Fetch } from '../../../services/fetch.service';
-import { DialogService } from '../../../services/dialog.service';
-import { KeyboardService } from '../../../services/keyboard.service';
+import { Fetch, DialogService, KeyboardService } from '@dotglitch/ngx-common';
+
 import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../../types';
 import { IconResolver } from '../icon-resolver';
 import { TabulatorComponent } from '../../tabulator/tabulator.component';
@@ -36,7 +35,7 @@ const itemWidth = (80 + 20);
         MatCheckboxModule,
         MatProgressBarModule,
         TabulatorComponent,
-        NgxContextMenuDirective,
+        MenuDirective,
         ScrollingModule
     ],
     standalone: true
@@ -141,7 +140,7 @@ export class FileGridComponent implements OnInit {
         { id: "star", label: "Star" }
     ];
 
-    folderContextMenu: ContextMenuItem<FSDescriptor>[] = [
+    folderContextMenu: MenuItem<FSDescriptor>[] = [
         {
             label: "New Folder",
             // shortcutLabel: "Shift+Ctrl+N",
@@ -190,7 +189,7 @@ export class FileGridComponent implements OnInit {
         // }
     ];
 
-    fileContextMenu: ContextMenuItem<FSDescriptor>[] = [];
+    fileContextMenu: MenuItem<FSDescriptor>[] = [];
 
     performChecksum(path, digest) {
         // this.windowManager.openWindow({
@@ -519,7 +518,7 @@ export class FileGridComponent implements OnInit {
     onSelect(item: FSDescriptor, evt) {
         evt.stopPropagation();
 
-        if (this.keyboard.shiftPressed) {
+        if (this.keyboard.isShiftPressed) {
             let start = this.directoryContents.findIndex(i => i.name == this.selection.slice(-1, 1)[0].name);
             let end = this.directoryContents.indexOf(item);
 
@@ -532,7 +531,7 @@ export class FileGridComponent implements OnInit {
 
             this.selection = items;
         }
-        else if (this.keyboard.ctrlPressed) {
+        else if (this.keyboard.isCtrlPressed) {
             if (!this.selection.includes(item))
                 this.selection.push(item);
             else // Case that we selected the same item twice
@@ -697,7 +696,7 @@ export class FileGridComponent implements OnInit {
     }).bind(this)
 
     onRowCtx({event, row}) {
-        openContextMenu(this.matDialog, this.fileContextMenu, row.getData(), event);
+        openMenu(this.matDialog, this.fileContextMenu, row.getData(), event);
     }
 
     onRowClick({event, row, data}) {

@@ -21,7 +21,7 @@
         style="height: 100%; width: 100%"
         track="vertical"
         pointerEventsMethod="scrollbar"
-        [ngx-ctx-menu]="folderContextMenu"
+        [ngx-contextmenu]="folderContextMenu"
     >
         <div class="resize-observer" #fileViewport></div>
         <cdk-virtual-scroll-viewport
@@ -34,8 +34,8 @@
                     *ngFor="let item of row"
                     [class.selected]="selection.includes(item)"
                     [class.generic]="item['_icon'].needsBackdrop"
-                    [ngx-ctx-menu]="fileContextMenu"
-                    [ngx-ctx-menu-context]="item"
+                    [ngx-contextmenu]="fileContextMenu"
+                    [ngx-menu-context]="item"
                 >
                     <mat-checkbox
                         #checkbox
@@ -62,7 +62,7 @@
         *ngIf="viewMode == 'list'"
         style="width: 100%; height: 100%"
         [class.showDropArea]="draggingOver"
-        [ngx-ctx-menu]="folderContextMenu"
+        [ngx-contextmenu]="folderContextMenu"
     >
         <app-tabulator
             [dataSource]="directoryContents"

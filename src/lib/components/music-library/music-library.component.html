@@ -23,8 +23,8 @@
                                             class="group-item"
                                             *ngFor="let item of groupItems"
                                             (dblclick)="selectGrouping(item)"
-                                            [ngx-ctx-menu]="groupedCtxItems"
-                                            [ngx-ctx-menu-context]="item"
+                                            [ngx-contextmenu]="groupedCtxItems"
+                                            [ngx-menu-context]="item"
                                         >
                                             <div class="photo">
                                                 <img [src]="item.image"/>
@@ -73,7 +73,7 @@
             <!-- Queue -->
             <as-split-area [minSize]="156" [size]="250">
                 <ng-scrollbar style="height: 100%; width: 100%" track="vertical" pointerEventsMethod="scrollbar"
-                    [ngx-ctx-menu]="queueCtxItems">
+                    [ngx-contextmenu]="queueCtxItems">
                     <div class="resize-observer" #fileViewport></div>
                     <cdk-virtual-scroll-viewport itemSize="54" scrollViewport>
                         <div
@@ -84,7 +84,7 @@
                             [class.active]="i == queueIndex"
                         >
                             <div style="width: 54px">
-                                <img class="img" [src]="getTrackPicture(item) | urlSanitizer" />
+                                <img class="img" [src]="getTrackPicture(item) | urlbypass" />
                             </div>
                             <div style="flex: 1">
                                 <div class="title">

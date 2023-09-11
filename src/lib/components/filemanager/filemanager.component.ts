@@ -4,15 +4,14 @@ import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDrawerContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { AngularSplitModule } from 'angular-split';
-import { NgxLazyLoaderService } from '@dotglitch/ngx-lazy-loader';
+import { LazyLoaderService } from '@dotglitch/ngx-common';
 
 import { FileGridComponent } from './file-grid/file-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { TreeViewComponent } from './tree-view/tree-view.component';
-import { Fetch } from '../../util';
+import { Fetch, DialogService } from '@dotglitch/ngx-common';
 import { FileSorting, NGX_WEB_COMPONENTS_CONFIG, NgxWebComponentsConfig } from '../../types';
 import { IconResolver } from './icon-resolver';
-import { DialogService } from 'src/lib/services/dialog.service';
 
 // TODO:
 /**
@@ -148,7 +147,7 @@ export type NgxFileManagerConfiguration = Partial<{
         TreeViewComponent
     ],
     providers: [
-        NgxLazyLoaderService
+        LazyLoaderService
     ],
     standalone: true
 })
@@ -228,7 +227,7 @@ export class FilemanagerComponent implements OnInit {
 
     constructor (
         @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
-        private readonly lazyLoader: NgxLazyLoaderService,
+        private readonly lazyLoader: LazyLoaderService,
         private viewContainer: ViewContainerRef,
         private fetch: Fetch
     ) {

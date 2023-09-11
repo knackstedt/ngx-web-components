@@ -37,8 +37,8 @@
 
     <gtk-icon-button
         fontIcon="more_vert"
-        [ngx-app-menu]="fileOptions"
-        [ngx-app-menu-config]="{position: 'bottom'}"
+        [ngx-menu]="fileOptions"
+        [ngx-menu-config]="{position: 'bottom'}"
     />
 
     <div style="width: 8px"></div>
@@ -56,8 +56,8 @@
 
     <gtk-icon-button
         fontIcon="sort"
-        [ngx-app-menu]="sortOptions"
-        [ngx-app-menu-config]="{position: 'bottom'}"
+        [ngx-menu]="sortOptions"
+        [ngx-menu-config]="{position: 'bottom'}"
     />
 </ng-container>
 
