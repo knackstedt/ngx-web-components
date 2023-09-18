@@ -46,7 +46,7 @@ export class ToolbarComponent {
     @Input() showBareMinimum = false;
 
     constructor(
-        public filemanager: FilemanagerComponent,
+        public fileManager: FilemanagerComponent,
         private dialog: DialogService,
         private fetch: Fetch
     ) {
@@ -63,10 +63,10 @@ export class ToolbarComponent {
         {
             label: "Upload file",
             icon: "file_upload",
-            action: (evt) => uploadFile(this.fetch, this.config, this.filemanager.currentTab.path).then(res => {
+            action: (evt) => uploadFile(this.fetch, this.config, this.fileManager.currentTab.path, null, this.fileManager.contextTags).then(res => {
                 // Tell the current tab to reload it's data.
-                const tab =  this.filemanager.currentTab;
-                const grid = this.filemanager.fileGrids.find(t => t.tab.id == tab.id);
+                const tab =  this.fileManager.currentTab;
+                const grid = this.fileManager.fileGrids.find(t => t.tab.id == tab.id);
                 grid.loadFolder();
             })
         },
@@ -130,7 +130,7 @@ export class ToolbarComponent {
         "separator",
         {
             label: "Refresh",
-            action: () => this.filemanager.currentFileGrid.loadFolder()
+            action: () => this.fileManager.currentFileGrid.loadFolder()
         }
     ];
 
@@ -147,14 +147,14 @@ export class ToolbarComponent {
     }
 
     toggleDrawer() {
-        if ([...this.filemanager.drawer._drawers][0].opened)
-            this.filemanager.drawer.close();
+        if ([...this.fileManager.drawer._drawers][0].opened)
+            this.fileManager.drawer.close();
         else
-            this.filemanager.drawer.open();
+            this.fileManager.drawer.open();
     }
 
     setSorter(mode: FileSorting) {
-        this.filemanager.currentTab.sortOrder = mode;
-        this.filemanager.refreshSorting();
+        this.fileManager.currentTab.sortOrder = mode;
+        this.fileManager.refreshSorting();
     }
 }

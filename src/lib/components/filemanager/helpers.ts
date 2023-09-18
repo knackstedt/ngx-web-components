@@ -1,40 +1,47 @@
 import { Fetch } from '@dotglitch/ngx-common';
 import { NgxFileManagerConfiguration } from './filemanager.component';
 
-export const uploadFile = (fetch: Fetch, config: NgxFileManagerConfiguration, currentDirectory: string, targetPath?: string) => {
-    return new Promise(r => {
-        const inEl = document.createElement('input');
-        inEl.setAttribute('type', 'file');
-        inEl.setAttribute('multiple', '');
-        inEl.click();
+export const uploadFile = (
+        fetch: Fetch,
+        config: NgxFileManagerConfiguration,
+        currentDirectory: string,
+        targetPath?: string,
+        contextTags: {[key: string]: string} = {}
+    ) => new Promise(r => {
 
-        let formData = new FormData();
+    const inEl = document.createElement('input');
+    inEl.setAttribute('type', 'file');
+    inEl.setAttribute('multiple', '');
+    inEl.click();
 
-        inEl.addEventListener('change', () => {
-            Object.keys(inEl.files).forEach(k => {
-                const file: {
-                    lastModified: number,
-                    lastModifiedDate: Date,
-                    name: string,
-                    size: number,
-                    type: string;
-                } = inEl.files[k];
+    let formData = new FormData();
 
-                const name = file.name;
-                formData.append(name, file as any);
-            });
-            formData.append("data", JSON.stringify({
-                path: currentDirectory
-            }));
+    inEl.addEventListener('change', () => {
+        Object.keys(inEl.files).forEach(k => {
+            const file: {
+                lastModified: number,
+                lastModifiedDate: Date,
+                name: string,
+                size: number,
+                type: string;
+            } = inEl.files[k];
 
-            const url = config.apiSettings.uploadEntryUrlTemplate
-                ? config.apiSettings.uploadEntryUrlTemplate(targetPath ?? currentDirectory)
-                : config.apiSettings.uploadEntryUrl;
-
-            r(fetch.post(url, formData).then(res => {
-                inEl.remove();
-                return res;
-            }));
+            const name = file.name;
+            formData.append(name, file as any);
         });
-    })
-}
+        formData.append("data", JSON.stringify({
+            path: currentDirectory,
+            ...contextTags
+        }));
+
+        const url = config.apiSettings.uploadEntryUrlTemplate
+            ? config.apiSettings.uploadEntryUrlTemplate(targetPath ?? currentDirectory)
+            : config.apiSettings.uploadEntryUrl;
+
+        r(fetch.post(url, formData).then(res => {
+            inEl.remove();
+            return res;
+        }));
+    });
+});
+

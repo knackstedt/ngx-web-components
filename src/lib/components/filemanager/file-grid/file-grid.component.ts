@@ -157,7 +157,7 @@ export class FileGridComponent implements OnInit {
             label: "Upload file",
             // shortcutLabel: "Ctrl+D",
             icon: "file_upload",
-            action: (evt) => uploadFile(this.fetch, this.config, this._path, evt ? (evt.path + evt.name) : null).then(res => {
+            action: (evt) => uploadFile(this.fetch, this.config, this._path, evt ? (evt.path + evt.name) : null, this.fileManager.contextTags).then(res => {
                 this.loadFolder();
             })
         },

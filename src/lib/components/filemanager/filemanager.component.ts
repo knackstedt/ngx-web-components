@@ -172,6 +172,7 @@ export class FilemanagerComponent implements OnInit {
 
     @Input() gridSize: "small" | "normal" | "large" = "normal";
     @Input() mode: "grid" | "list";
+    @Input() contextTags: {[key: string]: string};
 
 
     @Input() value: FSDescriptor[] = [];
