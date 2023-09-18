@@ -1,5 +1,5 @@
 <button
-    *ngIf="filemanager.sidebarOverlay && !drawerMode"
+    *ngIf="fileManager.sidebarOverlay && !drawerMode"
     mat-icon-button
     (click)="toggleDrawer()"
 >
@@ -47,11 +47,11 @@
         fontIcon="search"
     /> -->
 
-    <div style="width: 100px" *ngIf="filemanager.width > 800"></div>
+    <div style="width: 100px" *ngIf="fileManager.width > 800"></div>
 
     <gtk-icon-button
         [fontIcon]="currentTab.viewMode == 'list' ? 'view_list' : 'grid_view'"
-        (click)="currentTab.viewMode = currentTab.viewMode == 'list' ? 'grid' : 'list'; filemanager.onResize()"
+        (click)="currentTab.viewMode = currentTab.viewMode == 'list' ? 'grid' : 'list'; fileManager.onResize()"
     />
 
     <gtk-icon-button
