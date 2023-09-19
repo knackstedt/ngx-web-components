@@ -72,6 +72,16 @@ export type NgxFileManagerConfiguration = Partial<{
      * Initial path
      */
     path: string,
+
+    /**
+     * Custom root path (will appear as '/').
+     * Defaults to '/'.
+     *
+     * User cannot view outside of this path.
+     *   (Not to be used as a security measure)
+     */
+    chrootPath: string | RegExp,
+
     /**
      * Restrict users to only navigate around to subpaths of the specified `path`
      */
@@ -158,7 +168,6 @@ export class FilemanagerComponent implements OnInit {
     @ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
     @ViewChild(MatDrawerContainer) drawer: MatDrawerContainer;
 
-
     @Input() config: NgxFileManagerConfiguration = {
         apiSettings: {
             listEntriesUrl: `/api/filesystem/`,
@@ -228,7 +237,7 @@ export class FilemanagerComponent implements OnInit {
 
     constructor (
         @Optional() @Inject(NGX_WEB_COMPONENTS_CONFIG) readonly libConfig: NgxWebComponentsConfig = {},
-        private readonly lazyLoader: LazyLoaderService,
+        private lazyLoader: LazyLoaderService,
         private viewContainer: ViewContainerRef,
         private fetch: Fetch
     ) {
@@ -287,7 +296,8 @@ export class FilemanagerComponent implements OnInit {
     calcBreadcrumb(path: string) {
         if (!path) return null;
 
-        const parts = path.replace("#/", '/').split('/');
+
+        const parts = path.replace(this.config.chrootPath || /^\//, '/').replace("#/", '/').split('/');
         return parts.map((p, i) => {
             const path = parts.slice(0, i + 1).join('/');
 
